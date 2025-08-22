@@ -20,4 +20,6 @@ pub enum CustomError {
     InsufficientFunds,
     #[msg("Only owner can perform this operation")]
     UnauthorizedOwner,
+    #[msg("Underflow")]
+    Underflow
 }

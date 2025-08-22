@@ -1,6 +1,7 @@
 use anchor_lang::prelude::*;
 
 use crate::states::Campaign;
+use crate::errors::CustomError;
 
  pub fn initialize_campaign(
     ctx: Context<InitializeCampaign>,

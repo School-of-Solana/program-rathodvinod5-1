@@ -25,6 +25,6 @@ pub mod crowdfunding {
         title: String,
         description: String,
     ) -> Result<()> {
-        initialize_campaign(ctx, goal, deadline, title, description)
+        initialize_campaign(ctx, title, description, goal, deadline)
     }
 }

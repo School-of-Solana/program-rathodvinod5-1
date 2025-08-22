@@ -31,7 +31,7 @@ pub fn refund(ctx: Context<Refund>) -> Result<()> {
     campaign.total_donated = campaign
         .total_donated
         .checked_sub(amount)
-        .ok_or(ErrorCode::Underflow)?;
+        .ok_or(CustomError::Underflow)?;
 
     Ok(())
 }
