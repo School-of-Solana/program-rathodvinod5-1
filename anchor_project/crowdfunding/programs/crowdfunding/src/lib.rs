@@ -13,11 +13,6 @@ declare_id!("Ept1VxEScf1bzfkwfEous1ZCDj16QCirBBq9kXzYAgwG");
 pub mod crowdfunding {
     use super::*;
 
-    // pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
-    //     msg!("Greetings from: {:?}", ctx.program_id);
-    //     Ok(())
-    // }
-
     pub fn init_campaign(
         ctx: Context<InitializeCampaign>, 
         title: String,
@@ -26,5 +21,12 @@ pub mod crowdfunding {
         deadline: i64,
     ) -> Result<()> {
         initialize_campaign(ctx, title, description, goal, deadline)
+    }
+
+    pub fn contribute_amount(
+        ctx: Context<Contribute>, 
+        amount: u64
+    ) -> Result<()> {
+        contribute(ctx, amount)
     }
 }

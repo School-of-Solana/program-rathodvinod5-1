@@ -21,5 +21,9 @@ pub enum CustomError {
     #[msg("Only owner can perform this operation")]
     UnauthorizedOwner,
     #[msg("Underflow")]
-    Underflow
+    Underflow,
+    #[msg("Title too long")]
+    TitleTooLong,
+    #[msg("Description too long")]
+    DescriptionTooLong,
 }

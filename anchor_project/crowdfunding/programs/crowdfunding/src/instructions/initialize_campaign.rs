@@ -18,6 +18,24 @@ use crate::errors::CustomError;
         CustomError::DeadlineShouldBeGreaterThanNow
     );
 
+     // Enforce length limits
+    // require!(
+    //     title.chars().count() <= 30,
+    //     CustomError::TitleTooLong
+    // );
+    // require!(
+    //     description.chars().count() <= 50,
+    //     CustomError::DescriptionTooLong
+    // );
+
+    if title.chars().count() > 30 {
+        return err!(CustomError::TitleTooLong); 
+    }
+
+    if description.chars().count() > 50 {
+        return err!(CustomError::DescriptionTooLong);
+    }
+
     let campaign = &mut ctx.accounts.campaign;
     campaign.creator = ctx.accounts.signer.key();
     campaign.title = title;

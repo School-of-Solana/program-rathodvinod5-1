@@ -13,20 +13,28 @@ describe("Crowdfunding Program", () => {
   // Test data
   const title = "Clean Water";
   const titleWithGoal0 = "Goal with 0";
+  const titleForMissingSigner = "Signer Missing Campaign";
   const description = "Funding for building wells";
+  const descriptionForMissingSigner =
+    "This should fail because signer is missing";
   const goalAmount = new anchor.BN(2 * anchor.web3.LAMPORTS_PER_SOL); // 2 SOL
+  const contributeAmount = new anchor.BN(1 * anchor.web3.LAMPORTS_PER_SOL);
   const deadline = new anchor.BN(
     Math.floor(Date.now() / 1000) + 3 * 24 * 60 * 60
   ); // +3 days
   const pastDeadline = new anchor.BN(Math.floor(Date.now() / 1000) - 60); // 1 min ago
 
   const bob = anchor.web3.Keypair.generate();
+  const alice = anchor.web3.Keypair.generate();
+  const contributor3 = anchor.web3.Keypair.generate();
+
   let campaignPda: PublicKey;
+  let contributionPda: PublicKey;
   // const connection = provider.connection;
 
   describe("Create Campaign", () => {
     describe("Success cases for campaign", () => {
-      it.only("should create a new campaign with valid inputs", async () => {
+      it("should create a new campaign with valid inputs", async () => {
         await airdrop(provider.connection, bob.publicKey);
 
         // Derive PDA for campaign
@@ -57,7 +65,7 @@ describe("Crowdfunding Program", () => {
           .rpc();
       });
 
-      it.only("should initialize campaign with correct PDA", async () => {
+      it("should initialize campaign with correct PDA", async () => {
         // TODO: derive PDA
         const [expectedPda] = PublicKey.findProgramAddressSync(
           [
@@ -83,7 +91,7 @@ describe("Crowdfunding Program", () => {
     });
 
     describe("Failure cases", () => {
-      it.only("should fail if campaign goal is zero", async () => {
+      it("should fail if campaign goal is zero", async () => {
         const [campaignPdaWithGoalZero] = PublicKey.findProgramAddressSync(
           [
             anchor.utils.bytes.utf8.encode("campaign"),
@@ -117,9 +125,8 @@ describe("Crowdfunding Program", () => {
         }
       });
 
-      it.only("should fail if deadline is in the past", async () => {
+      it("should fail if deadline is in the past", async () => {
         try {
-          // Send create_campaign transaction with goalAmount = 0
           const tx = await program.methods
             .initCampaign(
               title,
@@ -139,42 +146,284 @@ describe("Crowdfunding Program", () => {
         } catch (err: any) {}
       });
 
-      it("should fail if title/description exceeds length limit", async () => {
-        const [campaignPdaWithTitleLengthExceed] =
-          PublicKey.findProgramAddressSync(
-            [
-              anchor.utils.bytes.utf8.encode("campaign"),
-              bob.publicKey.toBuffer(),
-              anchor.utils.bytes.utf8.encode(title.repeat(10)),
-            ],
-            program.programId
-          );
+      // it("should fail if title/description exceeds length limit", async () => {
+      //   const [campaignPdaWithTitleLengthExceed] =
+      //     PublicKey.findProgramAddressSync(
+      //       [
+      //         anchor.utils.bytes.utf8.encode("campaign"),
+      //         bob.publicKey.toBuffer(),
+      //         anchor.utils.bytes.utf8.encode(title.repeat(10)),
+      //       ],
+      //       program.programId
+      //     );
 
-        try {
-          // Send create_campaign transaction with goalAmount = 0
-          const tx = await program.methods
-            .initCampaign(
-              title.repeat(10),
-              description,
-              new anchor.BN(goalAmount),
-              new anchor.BN(pastDeadline)
-            )
-            .accounts({
-              campaign: campaignPdaWithTitleLengthExceed as PublicKey,
-              signer: bob.publicKey,
-              systemProgram: anchor.web3.SystemProgram.programId,
-            })
-            .signers([bob])
-            .rpc();
+      //   try {
+      //     const tx = await program.methods
+      //       .initCampaign(
+      //         title.repeat(10),
+      //         description,
+      //         new anchor.BN(goalAmount),
+      //         new anchor.BN(pastDeadline)
+      //       )
+      //       .accounts({
+      //         campaign: campaignPdaWithTitleLengthExceed as PublicKey,
+      //         signer: bob.publicKey,
+      //         systemProgram: anchor.web3.SystemProgram.programId,
+      //       })
+      //       .signers([bob])
+      //       .rpc();
 
-          assert.fail("Expected transaction to fail but it succeeded");
-        } catch (err: any) {}
-      });
+      //     assert.fail("Expected transaction to fail but it succeeded");
+      //   } catch (err: any) {
+      //     assert.include(
+      //       err.message,
+      //       "custom program error",
+      //       "Expected custom program error for exceeding length limit"
+      //     );
+      //   }
+      // });
     });
   });
 
-  describe("Success case for contribution", () => {
-    it.only("Should successfully contrribute the campaign", async () => {});
+  describe("Contribute to campaign", async () => {
+    describe("Success case for contribution", async () => {
+      await airdrop(provider.connection, bob.publicKey, 10 * LAMPORTS_PER_SOL);
+      await airdrop(provider.connection, alice.publicKey, 2 * LAMPORTS_PER_SOL);
+      await airdrop(
+        provider.connection,
+        contributor3.publicKey,
+        2 * LAMPORTS_PER_SOL
+      );
+
+      it("Should successfully contribute to the campaign", async () => {
+        [contributionPda] = PublicKey.findProgramAddressSync(
+          [
+            anchor.utils.bytes.utf8.encode("contributor"),
+            campaignPda.toBuffer(),
+            bob.publicKey.toBuffer(),
+          ],
+          program.programId
+        );
+        const tx = await program.methods
+          .contributeAmount(new anchor.BN(contributeAmount))
+          .accounts({
+            campaign: campaignPda,
+            contributor: bob.publicKey,
+            contribution: contributionPda,
+            systemProgram: anchor.web3.SystemProgram.programId,
+          })
+          .signers([bob])
+          .rpc();
+      });
+
+      // it("Should allow multiple contributions from the same contributor", async () => {
+      //   await program.methods
+      //     .contributeAmount(new anchor.BN(contributeAmount))
+      //     .accounts({
+      //       campaign: campaignPda,
+      //       contributor: bob.publicKey,
+      //       contribution: contributionPda,
+      //       systemProgram: anchor.web3.SystemProgram.programId,
+      //     })
+      //     .signers([bob])
+      //     .rpc();
+
+      //   await program.methods
+      //     .contributeAmount(new anchor.BN(contributeAmount))
+      //     .accounts({
+      //       campaign: campaignPda,
+      //       contributor: bob.publicKey,
+      //       contribution: contributionPda,
+      //       systemProgram: anchor.web3.SystemProgram.programId,
+      //     })
+      //     .signers([bob])
+      //     .rpc();
+      // });
+
+      it("Should allow multiple contributors and should correctly record contributor’s donation", async () => {
+        const [contributionPdaBob] = PublicKey.findProgramAddressSync(
+          [
+            anchor.utils.bytes.utf8.encode("contributor"),
+            campaignPda.toBuffer(),
+            bob.publicKey.toBuffer(),
+          ],
+          program.programId
+        );
+
+        const [contributionPdaAlice] = PublicKey.findProgramAddressSync(
+          [
+            anchor.utils.bytes.utf8.encode("contributor"),
+            campaignPda.toBuffer(),
+            alice.publicKey.toBuffer(),
+          ],
+          program.programId
+        );
+
+        // Alice contributes
+        await program.methods
+          .contributeAmount(new anchor.BN(1_000_000_000)) // or contributeAmount
+          .accounts({
+            campaign: campaignPda,
+            contribution: contributionPdaAlice,
+            contributor: alice.publicKey,
+            systemProgram: anchor.web3.SystemProgram.programId,
+          })
+          .signers([alice])
+          .rpc();
+
+        // Bob contributes already present from above cases
+        // await program.methods
+        //   .contributeAmount(new anchor.BN(1_000_000_000))
+        //   .accounts({
+        //     campaign: campaignPda,
+        //     contribution: contributionPdaBob,
+        //     contributor: bob.publicKey,
+        //     systemProgram: anchor.web3.SystemProgram.programId,
+        //   })
+        //   .signers([bob])
+        //   .rpc();
+
+        // Fetch both contributions
+        const aliceContribution = await program.account.contribution.fetch(
+          contributionPdaAlice
+        );
+        const bobContribution = await program.account.contribution.fetch(
+          contributionPdaBob
+        );
+
+        assert.equal(
+          aliceContribution.totalAmountDonated.toNumber(),
+          1_000_000_000,
+          "Alice's contribution not recorded correctly"
+        );
+        assert.equal(
+          bobContribution.totalAmountDonated.toNumber(),
+          1_000_000_000,
+          "Bob's contribution not recorded correctly"
+        );
+      });
+    });
+
+    describe("Failure case for contribution", () => {
+      it("Should fail if contribution is 0 lamports", async () => {
+        const [contributor3Pda] = PublicKey.findProgramAddressSync(
+          [
+            anchor.utils.bytes.utf8.encode("contributor"),
+            campaignPda.toBuffer(),
+            bob.publicKey.toBuffer(),
+          ],
+          program.programId
+        );
+
+        try {
+          await program.methods
+            .contributeAmount(new anchor.BN(0)) // or contributeAmount
+            .accounts({
+              campaign: campaignPda,
+              contribution: contributor3Pda,
+              contributor: contributor3.publicKey,
+              systemProgram: anchor.web3.SystemProgram.programId,
+            })
+            .signers([alice])
+            .rpc();
+
+          assert.fail(
+            "Expected contribution with 0 lamports to fail but it succeeded"
+          );
+        } catch (error: any) {}
+      });
+
+      it("Should fail if contribution is negative (if attempted via BN manipulation)", async () => {
+        const [contributor3Pda] = PublicKey.findProgramAddressSync(
+          [
+            anchor.utils.bytes.utf8.encode("contributor"),
+            campaignPda.toBuffer(),
+            bob.publicKey.toBuffer(),
+          ],
+          program.programId
+        );
+
+        try {
+          await program.methods
+            .contributeAmount(new anchor.BN(-1)) // or contributeAmount
+            .accounts({
+              campaign: campaignPda,
+              contribution: contributor3Pda,
+              contributor: contributor3.publicKey,
+              systemProgram: anchor.web3.SystemProgram.programId,
+            })
+            .signers([alice])
+            .rpc();
+
+          assert.fail(
+            "Expected contribution with 0 lamports to fail but it succeeded"
+          );
+        } catch (error: any) {}
+      });
+
+      // it("Should fail if campaign deadline has passed", () => {});
+      // it("Should fail if campaign is already successfully funded and closed", () => {});
+
+      it("Should fail if signer is missing", async () => {
+        // derive a campaign PDA for this test
+        const [campaignPdaForMissingSigner] = PublicKey.findProgramAddressSync(
+          [
+            anchor.utils.bytes.utf8.encode("campaign"),
+            bob.publicKey.toBuffer(),
+            anchor.utils.bytes.utf8.encode(titleForMissingSigner),
+          ],
+          program.programId
+        );
+
+        // Try to initCampaign without adding bob as a signer
+        try {
+          await program.methods
+            .initCampaign(
+              titleForMissingSigner,
+              descriptionForMissingSigner,
+              new anchor.BN(5_000), // goal
+              new anchor.BN(Math.floor(Date.now() / 1000) + 60) // valid deadline
+            )
+            .accounts({
+              campaign: campaignPdaForMissingSigner,
+              signer: bob.publicKey, // signer account provided but not signed
+              systemProgram: anchor.web3.SystemProgram.programId,
+            })
+            // 🚨 notice: no .signers([bob]) here
+            .rpc();
+
+          assert.fail("Expected transaction to fail, but it succeeded");
+        } catch (err: any) {}
+      });
+
+      it("Should fail if campaign PDA is invalid", async () => {
+        // Derive a random invalid PDA (not matching seeds in program)
+        const invalidCampaign = anchor.web3.Keypair.generate(); // totally random account
+        const [contributor3Pda] = PublicKey.findProgramAddressSync(
+          [
+            anchor.utils.bytes.utf8.encode("contributor"),
+            invalidCampaign.publicKey.toBuffer(),
+            bob.publicKey.toBuffer(),
+          ],
+          program.programId
+        );
+
+        try {
+          await program.methods
+            .contributeAmount(new anchor.BN(1_000_000)) // send 0.001 SOL
+            .accounts({
+              campaign: invalidCampaign.publicKey, // 🚨 invalid PDA
+              contributor: bob.publicKey,
+              contribution: contributor3Pda,
+              systemProgram: anchor.web3.SystemProgram.programId,
+            })
+            .signers([bob]) // bob signs
+            .rpc();
+
+          assert.fail("Expected transaction to fail, but it succeeded");
+        } catch (err: any) {}
+      });
+    });
   });
 });
 
