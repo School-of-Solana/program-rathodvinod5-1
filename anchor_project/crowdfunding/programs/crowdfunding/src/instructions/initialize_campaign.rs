@@ -42,6 +42,7 @@ pub struct InitializeCampaign<'info> {
         init,
         payer = signer,
         space = 8 + Campaign::INIT_SPACE,
+        // space = 395,
         seeds = [b"campaign", signer.key().as_ref(), title.as_bytes()],
         bump
     )]

@@ -22,7 +22,7 @@ pub fn contribute(ctx: Context<Contribute>, amount: u64) -> Result<()> {
 
     let transfer_instruction = transfer(&contributor.key(), &campaign_account.key(), amount);
 
-    invoke(
+    let _ = invoke(
         &transfer_instruction,
         &[
             contributor.to_account_info(),

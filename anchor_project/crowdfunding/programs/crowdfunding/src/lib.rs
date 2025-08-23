@@ -20,10 +20,10 @@ pub mod crowdfunding {
 
     pub fn init_campaign(
         ctx: Context<InitializeCampaign>, 
-        goal: u64,
-        deadline: i64,
         title: String,
         description: String,
+        goal: u64,
+        deadline: i64,
     ) -> Result<()> {
         initialize_campaign(ctx, title, description, goal, deadline)
     }
