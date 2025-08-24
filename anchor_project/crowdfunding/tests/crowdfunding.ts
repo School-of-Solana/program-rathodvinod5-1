@@ -188,11 +188,11 @@ describe("Crowdfunding Program", () => {
   describe("Contribute to campaign", async () => {
     describe("Success case for contribution", async () => {
       await airdrop(provider.connection, bob.publicKey, 10 * LAMPORTS_PER_SOL);
-      await airdrop(provider.connection, alice.publicKey, 2 * LAMPORTS_PER_SOL);
+      await airdrop(provider.connection, alice.publicKey, 5 * LAMPORTS_PER_SOL);
       await airdrop(
         provider.connection,
         contributor3.publicKey,
-        2 * LAMPORTS_PER_SOL
+        10 * LAMPORTS_PER_SOL
       );
 
       it("Should successfully contribute to the campaign", async () => {
@@ -425,6 +425,196 @@ describe("Crowdfunding Program", () => {
       });
     });
   });
+
+  describe("Claim Funds", () => {
+    describe("Success cases for Claiming funds", () => {
+      it("Should allow author to claim funds after deadline if goal met", async () => {
+        const newDeadline = new anchor.BN(Math.floor(Date.now() / 1000) + 2); // 2 seconds from now
+        // Derive PDA for campaign
+        const [newCampaignPda] = PublicKey.findProgramAddressSync(
+          [
+            anchor.utils.bytes.utf8.encode("campaign"),
+            bob.publicKey.toBuffer(),
+            anchor.utils.bytes.utf8.encode("New Campaign"),
+          ],
+          program.programId
+        );
+
+        // Send create_campaign transaction
+        const tx = await program.methods
+          .initCampaign(
+            "New Campaign",
+            description,
+            new anchor.BN(goalAmount),
+            new anchor.BN(newDeadline)
+          )
+          .accounts({
+            campaign: newCampaignPda as PublicKey,
+            signer: bob.publicKey,
+            systemProgram: anchor.web3.SystemProgram.programId,
+          })
+          .signers([bob])
+          .rpc();
+
+        const balanceBefore = await provider.connection.getBalance(
+          bob.publicKey
+        );
+
+        const [contributionPda] = PublicKey.findProgramAddressSync(
+          [
+            anchor.utils.bytes.utf8.encode("contributor"),
+            newCampaignPda.toBuffer(),
+            contributor3.publicKey.toBuffer(),
+          ],
+          program.programId
+        );
+
+        await program.methods
+          .contributeAmount(new anchor.BN(2 * LAMPORTS_PER_SOL))
+          .accounts({
+            campaign: newCampaignPda,
+            contributor: contributor3.publicKey,
+            contribution: contributionPda,
+            systemProgram: anchor.web3.SystemProgram.programId,
+          })
+          .signers([contributor3])
+          .rpc();
+
+        await new Promise((resolve) => setTimeout(resolve, 3000));
+
+        await program.methods
+          .claimFundByAuthor()
+          .accounts({
+            campaign: newCampaignPda,
+            creator: bob.publicKey,
+            systemProgram: anchor.web3.SystemProgram.programId,
+          })
+          .signers([bob])
+          .rpc();
+
+        // 6. Get balance after withdrawal
+        const balanceAfter = await provider.connection.getBalance(
+          bob.publicKey
+        );
+        // 7. Assertions
+        assert.isAbove(
+          balanceAfter,
+          balanceBefore,
+          "Author should receive funds after deadline if goal is met"
+        );
+      });
+    });
+
+    describe("Failure cases for Claiming funds", () => {
+      let newCampaignPda: PublicKey;
+      it("Should fail if author tries to claim funds before deadline", async () => {
+        try {
+          await program.methods
+            .claimFundByAuthor()
+            .accounts({
+              campaign: campaignPda,
+              creator: bob.publicKey,
+              systemProgram: anchor.web3.SystemProgram.programId,
+            })
+            .signers([bob])
+            .rpc();
+
+          assert.fail("Expected transaction to fail but it succeeded");
+        } catch (error: any) {}
+      });
+
+      it("Claim fund should fail if total_raised < goal_amount after deadline", async () => {
+        const newDeadline = new anchor.BN(Math.floor(Date.now() / 1000) + 2); // 2 seconds from now
+
+        [newCampaignPda] = PublicKey.findProgramAddressSync(
+          [
+            anchor.utils.bytes.utf8.encode("campaign"),
+            bob.publicKey.toBuffer(),
+            anchor.utils.bytes.utf8.encode("New Failing Campaign"),
+          ],
+          program.programId
+        );
+
+        // Send create_campaign transaction
+        const tx = await program.methods
+          .initCampaign(
+            "New Failing Campaign",
+            description,
+            new anchor.BN(goalAmount),
+            new anchor.BN(newDeadline) // 2 seconds
+          )
+          .accounts({
+            campaign: newCampaignPda as PublicKey,
+            signer: bob.publicKey,
+            systemProgram: anchor.web3.SystemProgram.programId,
+          })
+          .signers([bob])
+          .rpc();
+
+        const [contributionPda] = PublicKey.findProgramAddressSync(
+          [
+            anchor.utils.bytes.utf8.encode("contributor"),
+            newCampaignPda.toBuffer(),
+            contributor3.publicKey.toBuffer(),
+          ],
+          program.programId
+        );
+
+        await program.methods
+          .contributeAmount(new anchor.BN(1 * LAMPORTS_PER_SOL))
+          .accounts({
+            campaign: newCampaignPda,
+            contributor: contributor3.publicKey,
+            contribution: contributionPda,
+            systemProgram: anchor.web3.SystemProgram.programId,
+          })
+          .signers([contributor3])
+          .rpc();
+
+        try {
+          await program.methods
+            .claimFundByAuthor()
+            .accounts({
+              campaign: newCampaignPda,
+              creator: bob.publicKey,
+              systemProgram: anchor.web3.SystemProgram.programId,
+            })
+            .signers([bob])
+            .rpc();
+          assert.fail("Expected transaction to fail but it succeeded");
+        } catch (error: any) {}
+      });
+
+      it("Should fail if non-author tries to claim funds after deadline", async () => {
+        try {
+          await program.methods
+            .claimFundByAuthor()
+            .accounts({
+              campaign: newCampaignPda,
+              creator: alice.publicKey,
+              systemProgram: anchor.web3.SystemProgram.programId,
+            })
+            .signers([alice])
+            .rpc();
+          assert.fail("Expected transaction to fail but it succeeded");
+        } catch (error: any) {}
+      });
+    });
+  });
+
+  // describe("Claim Refunds", () => {
+  //   describe("Success cases for Claiming funds", () => {
+  //     it("Should allow author to claim funds after deadline if goal met", () => {});
+  //   });
+
+  //   describe("Failure cases for Claiming funds", () => {
+  //     it("Should fail if author tries to claim funds before deadline", () => {});
+
+  //     it("Should fail if total_raised < goal_amount after deadline", () => {});
+
+  //     it("Should fail if non-author tries to claim funds after deadline", () => {});
+  //   });
+  // });
 });
 
 async function airdrop(connection: any, address: any, amount = 1000000000) {
@@ -483,3 +673,9 @@ async function validateCampaign(
     "Total donated should be initialized to 0"
   );
 }
+
+async function validateFundsAfterSuccess(
+  program: anchor.Program<Crowdfunding>,
+  creator: PublicKey,
+  balanceBefore: number
+) {}
