@@ -1,0 +1,268 @@
+{
+  "address": "Ept1VxEScf1bzfkwfEous1ZCDj16QCirBBq9kXzYAgwG",
+  "metadata": {
+    "name": "crowdfunding",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
+  "instructions": [
+    {
+      "name": "claim_fund_by_author",
+      "discriminator": [84, 100, 15, 106, 65, 117, 188, 196],
+      "accounts": [
+        {
+          "name": "creator",
+          "writable": true,
+          "signer": true,
+          "relations": ["campaign"]
+        },
+        {
+          "name": "campaign",
+          "writable": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "contribute_amount",
+      "discriminator": [174, 163, 90, 174, 63, 14, 253, 115],
+      "accounts": [
+        {
+          "name": "contributor",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "campaign",
+          "writable": true
+        },
+        {
+          "name": "contribution",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [99, 111, 110, 116, 114, 105, 98, 117, 116, 111, 114]
+              },
+              {
+                "kind": "account",
+                "path": "campaign"
+              },
+              {
+                "kind": "account",
+                "path": "contributor"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "init_campaign",
+      "discriminator": [154, 188, 249, 244, 226, 210, 253, 109],
+      "accounts": [
+        {
+          "name": "signer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "campaign",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [99, 97, 109, 112, 97, 105, 103, 110]
+              },
+              {
+                "kind": "account",
+                "path": "signer"
+              },
+              {
+                "kind": "arg",
+                "path": "title"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "name": "description",
+          "type": "string"
+        },
+        {
+          "name": "goal",
+          "type": "u64"
+        },
+        {
+          "name": "deadline",
+          "type": "i64"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "Campaign",
+      "discriminator": [50, 40, 49, 11, 157, 220, 229, 192]
+    },
+    {
+      "name": "Contribution",
+      "discriminator": [182, 187, 14, 111, 72, 167, 242, 212]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "DeadlinePassed",
+      "msg": "The campaign deadline has already passed"
+    },
+    {
+      "code": 6001,
+      "name": "DeadlineNotPassed",
+      "msg": "The campaign deadline has not yet passed"
+    },
+    {
+      "code": 6002,
+      "name": "DeadlineShouldBeGreaterThanNow",
+      "msg": "Deadline should be greater than now!"
+    },
+    {
+      "code": 6003,
+      "name": "GoalNotMet",
+      "msg": "The funding goal was not met"
+    },
+    {
+      "code": 6004,
+      "name": "GoalMet",
+      "msg": "The funding goal was already met"
+    },
+    {
+      "code": 6005,
+      "name": "AlreadyClaimed",
+      "msg": "Funds already claimed"
+    },
+    {
+      "code": 6006,
+      "name": "AlreadyRefunded",
+      "msg": "Already refunded"
+    },
+    {
+      "code": 6007,
+      "name": "InsufficientFunds",
+      "msg": "Contribution amount should be greater then 0"
+    },
+    {
+      "code": 6008,
+      "name": "UnauthorizedOwner",
+      "msg": "Only owner can perform this operation"
+    },
+    {
+      "code": 6009,
+      "name": "Underflow",
+      "msg": "Underflow"
+    },
+    {
+      "code": 6010,
+      "name": "TitleTooLong",
+      "msg": "Title too long"
+    },
+    {
+      "code": 6011,
+      "name": "DescriptionTooLong",
+      "msg": "Description too long"
+    }
+  ],
+  "types": [
+    {
+      "name": "Campaign",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "creator",
+            "type": "pubkey"
+          },
+          {
+            "name": "title",
+            "type": "string"
+          },
+          {
+            "name": "description",
+            "type": "string"
+          },
+          {
+            "name": "goal_amount",
+            "type": "u64"
+          },
+          {
+            "name": "total_donated",
+            "type": "u64"
+          },
+          {
+            "name": "deadline",
+            "type": "i64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "refunded",
+            "type": "bool"
+          },
+          {
+            "name": "claimed",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Contribution",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "campaign",
+            "type": "pubkey"
+          },
+          {
+            "name": "contributor",
+            "type": "pubkey"
+          },
+          {
+            "name": "total_amount_donated",
+            "type": "u64"
+          }
+        ]
+      }
+    }
+  ]
+}
