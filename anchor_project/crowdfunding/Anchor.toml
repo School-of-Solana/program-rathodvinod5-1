@@ -12,7 +12,7 @@ crowdfunding = "Ept1VxEScf1bzfkwfEous1ZCDj16QCirBBq9kXzYAgwG"
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "localnet"
+cluster = "devnet"
 wallet = "~/.config/solana/id.json"
 
 [scripts]
