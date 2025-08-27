@@ -6,20 +6,22 @@ const CustomButton = ({
   route,
   onClick,
   customCss,
+  children,
 }: {
   title: string;
   route?: string;
   onClick?: () => void;
   customCss?: string;
+  children: React.ReactNode;
 }) => {
   const router = useRouter();
 
   return (
     <button
-      className={`mt-4 cursor-pointer bg-teal-700 rounded px-4 py-2 text-white ${customCss}`}
-      onClick={() => (onClick ? onClick : router.push(route!))}
+      className={`mt-4 cursor-pointer bg-teal-700 rounded px-4 py-2 text-white ${customCss} flex justify-center items-center`}
+      onClick={() => (onClick ? onClick() : router.push(route!))}
     >
-      {title}
+      {children}
     </button>
   );
 };

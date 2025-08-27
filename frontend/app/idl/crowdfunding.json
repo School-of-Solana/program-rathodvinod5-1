@@ -4,7 +4,8 @@
     "name": "crowdfunding",
     "version": "0.1.0",
     "spec": "0.1.0",
-    "description": "Created with Anchor"
+    "description": "Created with Anchor",
+    "address": "Ept1VxEScf1bzfkwfEous1ZCDj16QCirBBq9kXzYAgwG"
   },
   "instructions": [
     {

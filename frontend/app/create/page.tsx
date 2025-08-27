@@ -1,5 +1,5 @@
 "use client";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 
 import useCreateCampaign from "./useCreateCampaign";
 
@@ -14,9 +14,10 @@ const CreateCampaign = () => {
     deadline,
     onChangeDeadline,
     clearFormData,
+    handleCreateCampaign,
   } = useCreateCampaign();
 
-  const router = useRouter();
+  // const router = useRouter();
 
   return (
     <div className="w-full flex flex-row justify-center items-center">
@@ -78,7 +79,7 @@ const CreateCampaign = () => {
           </button>
           <button
             className="cursor-pointer bg-teal-700 rounded px-4 py-2 text-white"
-            onClick={() => router.push("/create")}
+            onClick={handleCreateCampaign}
           >
             Create Campaign
           </button>

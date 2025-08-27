@@ -1,9 +1,30 @@
 "use client";
 import { useRouter, usePathname } from "next/navigation";
+import { useWallet } from "@solana/wallet-adapter-react";
+import { useConnection } from "@solana/wallet-adapter-react";
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import { useEffect } from "react";
 
 const Header = () => {
   const router = useRouter();
-  const pathName = usePathname();
+  // const pathName = usePathname();
+
+  const { publicKey, connected, connect, disconnect } = useWallet();
+  // const { connection } = useConnection();
+
+  useEffect(() => {
+    if (connected && publicKey) {
+      // console.log("Wallet connected:", publicKey.toBase58());
+    }
+  }, [connected, publicKey]);
+
+  const onClickButton = () => {
+    if (publicKey) {
+      disconnect();
+    } else {
+      connect();
+    }
+  };
 
   return (
     <header className="flex flex-row justify-between items-center mt-6">
@@ -13,16 +34,14 @@ const Header = () => {
       >
         Campaign
       </button>
-      {!pathName.includes("create") ? (
-        <button
-          className="cursor-pointer bg-teal-700 rounded px-4 py-2 text-white"
-          onClick={() => router.push("/create")}
-        >
-          Create Campaign
-        </button>
-      ) : (
-        <div />
-      )}
+
+      <WalletMultiButton />
+      {/* <button
+        onClick={connect}
+        className="px-4 py-2 bg-green-600 text-white rounded-lg"
+      >
+        {connected && publicKey ? publicKey?.toBase58() : "Connect Wallet"}
+      </button> */}
     </header>
   );
 };

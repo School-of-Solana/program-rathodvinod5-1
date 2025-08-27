@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { WalletContextProvider } from "./provider/WalletContextProvider";
 import Header from "./components/Header";
+import { SolanaWalletContextProviders } from "./context/SolanaWalletContextProvider";
+import { CampaignProvider } from "./context/CampaignContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,14 +28,19 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased px-[180px]`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased sm-px-[180px]`}
       >
-        {/* {children} */}
-        <Header />
-        <main>
-          <WalletContextProvider>{children}</WalletContextProvider>
-        </main>
-        <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center"></footer>
+        <SolanaWalletContextProviders>
+          <CampaignProvider>
+            <Header />
+            <main>
+              {/* <WalletContextProvider>{children}</WalletContextProvider> */}
+
+              {children}
+            </main>
+            <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center"></footer>
+          </CampaignProvider>
+        </SolanaWalletContextProviders>
       </body>
     </html>
   );
