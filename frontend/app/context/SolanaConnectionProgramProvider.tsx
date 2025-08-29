@@ -11,7 +11,6 @@ import { AnchorProvider, Program, Idl } from "@coral-xyz/anchor";
 import { PublicKey, Connection, clusterApiUrl } from "@solana/web3.js";
 import IDL from "../idl/crowdfunding.json";
 import { NETWORK } from "../utilities/Contants";
-// import { PROGRAM_ID } from "../utilities/Contants";
 
 // TODO: Replace with your program ID & IDL
 const PROGRAM_ID = new PublicKey(

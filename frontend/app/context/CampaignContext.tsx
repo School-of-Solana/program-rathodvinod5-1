@@ -7,6 +7,7 @@ import React, {
   useEffect,
 } from "react";
 import { useAnchor } from "./SolanaConnectionProgramProvider";
+import { PublicKey } from "@solana/web3.js";
 
 export type Campaign = {
   publicKey: string; // unique id (could be publicKey.toBase58())
@@ -23,6 +24,7 @@ type CampaignContextType = {
   //   setCampaigns: (campaigns: Campaign[]) => void;
   //   addCampaign: (campaign: Campaign) => void;
   getCampaignById: (id: string) => Campaign | undefined | any;
+  fetchDetailsOfCampaingAccount: (campaignId: PublicKey) => {};
 };
 
 const CampaignContext = createContext<CampaignContextType | undefined>(
@@ -32,7 +34,7 @@ const CampaignContext = createContext<CampaignContextType | undefined>(
 export const CampaignProvider = ({ children }: { children: ReactNode }) => {
   const [campaigns, setCampaigns] = useState<any[] | null>(null);
 
-  const { program } = useAnchor();
+  const { program, connection } = useAnchor();
 
   useEffect(() => {
     // console.log("in useEffect");
@@ -45,6 +47,7 @@ export const CampaignProvider = ({ children }: { children: ReactNode }) => {
     try {
       let campaigns = await program?.account?.campaign?.all();
       setCampaigns(campaigns);
+      console.log("Fetched campaigns:", campaigns);
     } catch (err) {
       console.error("Error fetching campaigns:", err);
       return [];
@@ -63,8 +66,32 @@ export const CampaignProvider = ({ children }: { children: ReactNode }) => {
     return campaigns?.find((c) => c.publicKey === id);
   };
 
+  const fetchDetailsOfCampaingAccount = async (accountPublicKey: PublicKey) => {
+    try {
+      const accountInfo = await connection.getAccountInfo(accountPublicKey);
+      console.log("accountInfo:", accountInfo);
+      // campaigns.map(campaign =>
+      //   campaign.id === campaignId ? newCampaign : campaign
+      // );
+      setCampaigns((prevCampaigns) => {
+        const updatedCampaigns = prevCampaigns!.map(
+          (campaign) =>
+            campaign.publicKey === accountPublicKey.toBase58()
+              ? accountInfo
+              : campaign
+          // campaign.id === campaignId ? accountInfo : campaign
+        );
+        return updatedCampaigns;
+      });
+    } catch (err) {
+      console.error("❌ Failed to fetch account details:", err);
+    }
+  };
+
   return (
-    <CampaignContext.Provider value={{ campaigns, getCampaignById }}>
+    <CampaignContext.Provider
+      value={{ campaigns, getCampaignById, fetchDetailsOfCampaingAccount }}
+    >
       {children}
     </CampaignContext.Provider>
   );

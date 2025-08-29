@@ -10,6 +10,7 @@ import {
 import { NETWORK, OPTS, PROGRAM_ID } from "../utilities/Contants";
 import { useAnchor } from "../context/SolanaConnectionProgramProvider";
 import { PublicKey } from "@solana/web3.js";
+import { useCampaignsContext } from "../context/CampaignContext";
 // import { useProgram } from "../context/ProgramContextProvider";
 
 const useCreateCampaign = () => {
@@ -20,7 +21,8 @@ const useCreateCampaign = () => {
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
 
   // const { program } = useProgram();
-  const { program } = useAnchor();
+  const { program, connection } = useAnchor();
+  const { fetchDetailsOfCampaingAccount } = useCampaignsContext();
 
   const wallet = useWallet(); // ✅ full wallet object (with publicKey + signTransaction)
 
@@ -99,24 +101,36 @@ const useCreateCampaign = () => {
       const goalLamports = new BN(goalAmount);
       const contributionPda = getContributionPDA(campaignPda, wallet.publicKey);
 
-      const txSig = await program?.methods
-        .contributeAmount(goalLamports)
-        .accounts({
-          signer: wallet.publicKey,
-          campaign: campaignPda,
-          contirbution: contributionPda,
-          systemProgram: web3.SystemProgram.programId,
-        })
-        .rpc();
+      // const txSig = await program?.methods
+      //   .contributeAmount(goalLamports)
+      //   .accounts({
+      //     signer: wallet.publicKey,
+      //     campaign: campaignPda,
+      //     contirbution: contributionPda,
+      //     systemProgram: web3.SystemProgram.programId,
+      //   })
+      //   .rpc();
 
-      console.log("✅ Contributed to campaign with tx:", txSig);
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
+      // console.log("✅ Contributed to campaign with tx:", txSig);
       console.log("📍 Contribution PDA:", contributionPda.toBase58());
+      fetchDetailsOfCampaingAccount(campaignPda);
     } catch (err) {
       console.error("❌ Failed to contribute to campaign:", err);
     } finally {
       setIsProcessing(false);
     }
   };
+
+  // const fetchDetailsOfCampaingAccount = async (accountPublicKey: PublicKey) => {
+  //   try {
+  //     const accountInfo = await connection.getAccountInfo(accountPublicKey);
+  //     console.log(accountInfo);
+  //   } catch (err) {
+  //     console.error("❌ Failed to fetch account details:", err);
+  //   }
+  // };
 
   const clearFormData = () => {
     setCampaignName("");
@@ -138,6 +152,7 @@ const useCreateCampaign = () => {
     handleCreateCampaign,
     clearFormData,
     contributToCampaign,
+    fetchDetailsOfCampaingAccount,
   };
 };
 

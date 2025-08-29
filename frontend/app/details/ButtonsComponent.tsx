@@ -4,16 +4,18 @@ import CustomButton from "../components/Button";
 import useCreateCampaign from "../create/useCreateCampaign";
 
 const ButtonsComponent = ({
+  isProcessing,
   campaignPublicKey,
   onClickContributeButton,
   onClickClaimButton,
 }: {
+  isProcessing?: boolean;
   campaignPublicKey?: string;
   onClickContributeButton?: () => void;
   onClickClaimButton?: () => void;
 }) => {
   const { publicKey, connected, connect, disconnect } = useWallet();
-  const { isProcessing, contributToCampaign } = useCreateCampaign();
+  // const { isProcessing, contributToCampaign } = useCreateCampaign();
 
   const isCreator = (() => {
     let pubKey = JSON.stringify(campaignPublicKey);
@@ -22,7 +24,7 @@ const ButtonsComponent = ({
     return pubKey === publicKey?.toString();
   })();
 
-  console.log("isCreator", isCreator);
+  console.log("isCreator", isCreator, isProcessing);
 
   return (
     <div className="w-full flex flex-row justify-center items-center gap-4">
@@ -32,10 +34,10 @@ const ButtonsComponent = ({
         onClick={onClickContributeButton}
         customCss="w-[200px]"
       >
-        {!isProcessing ? (
-          <p>Contribute</p>
-        ) : (
+        {isProcessing ? (
           <div className="w-8 h-8 animate-spin rounded-full border-dashed border-8 border-white"></div>
+        ) : (
+          <p>Contribute</p>
         )}
       </CustomButton>
       {/* <CustomButton
@@ -50,10 +52,10 @@ const ButtonsComponent = ({
           onClick={() => {}}
           customCss="w-[200px]"
         >
-          {!isProcessing ? (
-            <p>Claim Funds</p>
+          {isProcessing ? (
+            <div className="w-8 h-8 animate-spin rounded-full border-dashed border-8 border-white"></div>
           ) : (
-            <div className="w-10 h-10 animate-spin rounded-full border-dashed border-8 border-[#3b9df8]"></div>
+            <p>Claim Funds</p>
           )}
         </CustomButton>
       ) : null}

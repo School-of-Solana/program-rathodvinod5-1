@@ -6,6 +6,7 @@ import { formatTimestamp } from "@/app/utilities/HelperFunctions";
 import ProgressBar from "@/app/components/ProgressBar";
 import useCreateCampaign from "@/app/create/useCreateCampaign";
 import { PublicKey } from "@solana/web3.js";
+import Alert from "@/app/components/Alert";
 
 const CampaignDetails = () => {
   const { campaigns } = useCampaignsContext();
@@ -31,6 +32,10 @@ const CampaignDetails = () => {
 
   return (
     <div className="px-[180px]">
+      <Alert
+        title="Contribution Succesfull"
+        description="Your contribution has been successfully processed."
+      />
       <div className="w-full h-fit border border-teal-600 p-4 rounded-md mt-[60px]">
         <p className="font-bold text-lg my-2 capitalize">
           {campaignDetails.account.title}
@@ -75,6 +80,7 @@ const CampaignDetails = () => {
         <ButtonsComponent
           campaignPublicKey={campaignDetails.account.creator as string}
           onClickContributeButton={onClickContributeButton}
+          isProcessing={isProcessing}
         />
       </div>
     </div>
