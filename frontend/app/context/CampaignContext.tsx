@@ -23,6 +23,7 @@ type CampaignContextType = {
   campaigns: any[] | null;
   //   setCampaigns: (campaigns: Campaign[]) => void;
   //   addCampaign: (campaign: Campaign) => void;
+  fetchCampaigns: () => {};
   getCampaignById: (id: string) => Campaign | undefined | any;
   fetchDetailsOfCampaingAccount: (campaignId: PublicKey) => {};
 };
@@ -70,16 +71,11 @@ export const CampaignProvider = ({ children }: { children: ReactNode }) => {
     try {
       const accountInfo = await connection.getAccountInfo(accountPublicKey);
       console.log("accountInfo:", accountInfo);
-      // campaigns.map(campaign =>
-      //   campaign.id === campaignId ? newCampaign : campaign
-      // );
       setCampaigns((prevCampaigns) => {
-        const updatedCampaigns = prevCampaigns!.map(
-          (campaign) =>
-            campaign.publicKey === accountPublicKey.toBase58()
-              ? accountInfo
-              : campaign
-          // campaign.id === campaignId ? accountInfo : campaign
+        const updatedCampaigns = prevCampaigns!.map((campaign) =>
+          campaign.publicKey === accountPublicKey.toBase58()
+            ? accountInfo
+            : campaign
         );
         return updatedCampaigns;
       });
@@ -90,7 +86,12 @@ export const CampaignProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <CampaignContext.Provider
-      value={{ campaigns, getCampaignById, fetchDetailsOfCampaingAccount }}
+      value={{
+        campaigns,
+        fetchCampaigns,
+        getCampaignById,
+        fetchDetailsOfCampaingAccount,
+      }}
     >
       {children}
     </CampaignContext.Provider>

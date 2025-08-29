@@ -15,7 +15,7 @@ export default function Home() {
   return (
     <div className="font-sans grid grid-rows-[20px_1fr_20px]  min-h-screen p-8 pb-20 gap-16 sm:p-20">
       <div className="flex flex-row justify-between items-center">
-        <p>Campaign List</p>
+        <p className="text-xl font-semibold">All Campaign List</p>
         <button
           className="cursor-pointer bg-teal-700 rounded px-4 py-2 text-white"
           onClick={() => router.push("/create")}

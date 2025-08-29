@@ -4,15 +4,19 @@ import CustomButton from "../components/Button";
 import useCreateCampaign from "../create/useCreateCampaign";
 
 const ButtonsComponent = ({
-  isProcessing,
+  isContributionProcessing = false,
+  isClaimFundsProcessing = false,
   campaignPublicKey,
   onClickContributeButton,
   onClickClaimButton,
+  isCampaignActive = false,
 }: {
-  isProcessing?: boolean;
+  isContributionProcessing?: boolean;
+  isClaimFundsProcessing?: boolean;
   campaignPublicKey?: string;
   onClickContributeButton?: () => void;
   onClickClaimButton?: () => void;
+  isCampaignActive?: boolean;
 }) => {
   const { publicKey, connected, connect, disconnect } = useWallet();
   // const { isProcessing, contributToCampaign } = useCreateCampaign();
@@ -24,36 +28,32 @@ const ButtonsComponent = ({
     return pubKey === publicKey?.toString();
   })();
 
-  console.log("isCreator", isCreator, isProcessing);
+  console.log("isCreator", isCreator, isContributionProcessing);
 
   return (
     <div className="w-full flex flex-row justify-center items-center gap-4">
-      <CustomButton
-        title="Contribute"
-        // route="/details/${campaign}"
-        onClick={onClickContributeButton}
-        customCss="w-[200px]"
-      >
-        {isProcessing ? (
-          <div className="w-8 h-8 animate-spin rounded-full border-dashed border-8 border-white"></div>
-        ) : (
-          <p>Contribute</p>
-        )}
-      </CustomButton>
-      {/* <CustomButton
-        title="Claim Funds"
-        // route="/details/${campaign}"
-        onClick={() => {}}
-        customCss="w-[200px]"
-      /> */}
+      {isCampaignActive ? (
+        <CustomButton
+          title="Contribute"
+          onClick={onClickContributeButton}
+          customCss="w-[200px]"
+        >
+          {isContributionProcessing ? (
+            <div className="w-6 h-6 animate-spin rounded-full border-dashed border-6 border-white" />
+          ) : (
+            <p>Contribute</p>
+          )}
+        </CustomButton>
+      ) : null}
+
       {isCreator ? (
         <CustomButton
           title="Claim Funds"
-          onClick={() => {}}
+          onClick={onClickClaimButton}
           customCss="w-[200px]"
         >
-          {isProcessing ? (
-            <div className="w-8 h-8 animate-spin rounded-full border-dashed border-8 border-white"></div>
+          {isClaimFundsProcessing ? (
+            <div className="w-6 h-6 animate-spin rounded-full border-dashed border-6 border-white" />
           ) : (
             <p>Claim Funds</p>
           )}
