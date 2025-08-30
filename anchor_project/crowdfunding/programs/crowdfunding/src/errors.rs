@@ -26,4 +26,6 @@ pub enum CustomError {
     TitleTooLong,
     #[msg("Description too long")]
     DescriptionTooLong,
+    #[msg("Funds already claimed")]
+    FundsAlreadyClaimed,
 }

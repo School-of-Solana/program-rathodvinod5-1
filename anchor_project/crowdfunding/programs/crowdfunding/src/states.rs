@@ -12,7 +12,7 @@ pub struct Campaign {
     pub total_donated: u64,
     pub deadline: i64,
     pub bump: u8,
-    pub refunded: bool,
+    // pub refunded: bool,
     pub claimed: bool,
 }
 

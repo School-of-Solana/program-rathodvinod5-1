@@ -17,6 +17,8 @@ pub fn claim_funds(ctx: Context<ClaimFunds>) -> Result<()> {
         CustomError::GoalNotMet
     );
 
+    require!(!campaign.claimed, CustomError::FundsAlreadyClaimed);
+
     // let amount = campaign.to_account_info().lamports();
     // let amount = **campaign.to_account_info().lamports.borrow();
     // let instructions = transfer(&campaign.key(), &creator.key(), amount);

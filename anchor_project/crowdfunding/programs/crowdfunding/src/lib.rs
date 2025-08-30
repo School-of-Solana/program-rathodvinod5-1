@@ -33,4 +33,8 @@ pub mod crowdfunding {
     pub fn claim_fund_by_author(ctx: Context<ClaimFunds>) -> Result<()> {
         claim_funds(ctx)
     }
+
+    pub fn refund_to_contributor(ctx: Context<Refund>) -> Result<()> {
+        refund(ctx)
+    }
 }

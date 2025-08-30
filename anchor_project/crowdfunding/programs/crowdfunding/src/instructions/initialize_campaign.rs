@@ -44,7 +44,6 @@ use crate::errors::CustomError;
     campaign.deadline = deadline;
     campaign.bump = ctx.bumps.campaign;
     campaign.total_donated = 0;
-    campaign.refunded = false;
     campaign.claimed = false;
 
     Ok(())
