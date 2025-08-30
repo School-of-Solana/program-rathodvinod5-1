@@ -28,7 +28,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased sm-px-[180px]`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased md:px-[180px]`}
       >
         <SolanaWalletContextProviders>
           <CampaignProvider>

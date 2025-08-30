@@ -44,3 +44,28 @@ export function formatTimestamp(unixTimestamp: number): string {
     second: "2-digit",
   });
 }
+
+export function lamportsToSol(
+  lamports: number | string | bigint,
+  decimals = 9 // how many fraction digits to show (max 9)
+): string {
+  if (decimals < 0 || decimals > 9)
+    throw new RangeError("decimals must be 0..9");
+
+  // const LAMPORTS_PER_SOL = 1_000_000_000n;
+  const lp = typeof lamports === "bigint" ? lamports : BigInt(lamports);
+
+  const whole = lp / BigInt(LAMPORTS_PER_SOL);
+  const rem = lp % BigInt(LAMPORTS_PER_SOL);
+
+  if (rem === BigInt(0) || decimals === 0) return whole.toString();
+
+  // produce fractional part with 9 digits, then trim to requested decimals
+  const fracFull = rem.toString().padStart(9, "0");
+  const fracTrimmed = fracFull.slice(0, decimals);
+
+  // trim trailing zeros from fraction
+  const frac = fracTrimmed.replace(/0+$/, "");
+
+  return frac.length > 0 ? `${whole.toString()}.${frac}` : whole.toString();
+}

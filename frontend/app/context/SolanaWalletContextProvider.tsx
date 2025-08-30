@@ -25,7 +25,7 @@ export const SolanaWalletContextProviders: FC<{ children: ReactNode }> = ({
 
   return (
     <ConnectionProvider endpoint={NETWORK}>
-      <WalletProvider wallets={wallets} autoConnect>
+      <WalletProvider wallets={wallets}>
         <WalletModalProvider>
           <AnchorProviderContext>{children}</AnchorProviderContext>
         </WalletModalProvider>

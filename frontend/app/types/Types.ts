@@ -1,3 +1,5 @@
+import * as anchor from "@coral-xyz/anchor";
+import { PublicKey } from "@solana/web3.js";
 import {
   ErrorMessage,
   SuccessAndErrorType,
@@ -23,4 +25,11 @@ export type FormInputErrorTypes = {
   campaignDescription?: string;
   goalAmount?: string;
   deadline?: string;
+};
+
+export type ContributionAccountType = {
+  totalAmountDonated: anchor.BN;
+  campaign: PublicKey;
+  contributor: PublicKey;
+  // add other fields from your Contribution struct here
 };

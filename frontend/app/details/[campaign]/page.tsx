@@ -2,7 +2,10 @@
 import { useCampaignsContext } from "@/app/context/CampaignContext";
 import ButtonsComponent from "../ButtonsComponent";
 import { useParams } from "next/navigation";
-import { formatTimestamp } from "@/app/utilities/HelperFunctions";
+import {
+  formatTimestamp,
+  lamportsToSol,
+} from "@/app/utilities/HelperFunctions";
 import ProgressBar from "@/app/components/ProgressBar";
 import useCreateCampaign from "@/app/create/useCreateCampaign";
 import { PublicKey } from "@solana/web3.js";
@@ -17,12 +20,14 @@ const CampaignDetails = () => {
     contributionStatus,
     claimFundsStatus,
     goalAmount,
-    previousContributionAmount,
+    contributionAccountDetails,
     closeAlertTypeStatus,
     onChangeGoalAmount,
     contributToCampaign,
     claimFunds,
-    fetchDetailsOfContribution,
+    isClaimRefundProcessing,
+    claimRefundStatus,
+    claimRefunds,
   } = useCreateCampaign();
 
   const params = useParams();
@@ -51,17 +56,29 @@ const CampaignDetails = () => {
     );
   };
 
-  const deadlineInString = new Date(campaignDetails.account.deadline * 1000);
-  const dateNow = new Date();
-
-  const isCampaignActive = dateNow < deadlineInString;
-  console.log("isCampaignActive", isCampaignActive, dateNow, deadlineInString);
-
-  const fetchContributionsDetailsIfExists = () => {
-    // Fetch contributions for the campaign
-    console.log("fetchContributionsIfExists");
-    fetchDetailsOfContribution(new PublicKey(campaign!));
+  const onClickClaimRefundButton = () => {
+    if (contributionAccountDetails?.totalAmountDonated.toString() > 0) {
+      claimRefunds(
+        new PublicKey(campaign!),
+        contributionAccountDetails?.contributor as PublicKey
+      );
+    }
   };
+
+  let isCampaignActive = false;
+  if (campaignDetails?.account?.deadline) {
+    const deadlineInString = new Date(
+      campaignDetails?.account?.deadline * 1000
+    );
+    const dateNow = new Date();
+
+    isCampaignActive = dateNow < deadlineInString;
+  }
+  // console.log("isCampaignActive", isCampaignActive, dateNow, deadlineInString);
+  const previousContributionAmount =
+    contributionAccountDetails?.totalAmountDonated.toString();
+
+  if (!campaignDetails) return null;
 
   return (
     <div className="px-[180px]">
@@ -83,6 +100,15 @@ const CampaignDetails = () => {
         />
       ) : null}
 
+      {claimRefundStatus ? (
+        <Alert
+          status={claimRefundStatus}
+          onCloseHandler={() =>
+            closeAlertTypeStatus(CloseAccountTypeEnum.CLAIM_REFUND)
+          }
+        />
+      ) : null}
+
       <div className="w-full h-fit border border-teal-600 p-4 rounded-md mt-[60px]">
         <p className="font-bold text-lg my-2 capitalize">
           {campaignDetails.account.title}
@@ -95,12 +121,20 @@ const CampaignDetails = () => {
           Target amount:{" "}
           <span className="font-bold">
             {campaignDetails.account.goalAmount.toString()} lamports
+          </span>{" "}
+          /{" "}
+          <span className="font-bold">
+            {lamportsToSol(campaignDetails.account.goalAmount.toString())} sol
           </span>
         </p>
         <p className="my-2 text-gray-700">
           Total raised:{" "}
           <span className="font-bold">
             {campaignDetails.account.totalDonated.toString()} lamports
+          </span>{" "}
+          /{" "}
+          <span className="font-bold">
+            {lamportsToSol(campaignDetails.account.totalDonated.toString())} sol
           </span>
         </p>
         <ProgressBar
@@ -130,19 +164,19 @@ const CampaignDetails = () => {
           campaignPublicKey={campaignDetails.account.creator as string}
           isContributionProcessing={isContributionProcessing}
           isClaimFundsProcessing={isClaimFundsProcessing}
-          isClaimRefundProcessing={false}
+          isClaimRefundProcessing={isClaimRefundProcessing}
           onClickContributeButton={onClickContributeButton}
           onClickClaimButton={onClickClaimFundsButton}
-          onClickClaimRefundButton={() => {}}
+          onClickClaimRefundButton={onClickClaimRefundButton}
           isCampaignActive={isCampaignActive}
           previousContributionAmount={previousContributionAmount}
         />
       </div>
 
-      {previousContributionAmount ? (
+      {Number(previousContributionAmount) > 0 ? (
         <div className="mt-4">
           <p>
-            Your prevous Contributions:{" "}
+            Your previous Contributions:{" "}
             <b>{previousContributionAmount} lamports</b>
           </p>
         </div>

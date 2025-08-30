@@ -13,7 +13,7 @@ export default function Home() {
   const router = useRouter();
 
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px]  min-h-screen p-8 pb-20 gap-16 sm:p-20">
+    <div className="font-sans grid grid-rows-[20px_1fr_20px] min-h-screen py-8 gap-16 sm-gap-0">
       <div className="flex flex-row justify-between items-center">
         <p className="text-xl font-semibold">All Campaign List</p>
         <button
@@ -29,7 +29,7 @@ export default function Home() {
           campaigns?.map((campaign) => {
             return (
               <div
-                key={campaign}
+                key={campaign.publicKey.toString()}
                 className="w-[280px] h-fit border border-teal-600 p-4 rounded-md break-all "
               >
                 <p className="font-bold text-lg my-2 capitalize">

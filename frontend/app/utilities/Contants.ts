@@ -38,4 +38,5 @@ export enum CloseAccountTypeEnum {
   CREATE_CAMPAIGN = "createCampaign",
   CONTRIBUTION = "contribution",
   CLAIM_FUNDS = "claimFunds",
+  CLAIM_REFUND = "claimRefund",
 }

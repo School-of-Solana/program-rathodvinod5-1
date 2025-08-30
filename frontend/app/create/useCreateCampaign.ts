@@ -19,6 +19,7 @@ import {
 import { useAnchor } from "../context/SolanaConnectionProgramProvider";
 import { useCampaignsContext } from "../context/CampaignContext";
 import {
+  ContributionAccountType,
   FormInputErrorTypes,
   SuccessAndErrorDetailsType,
 } from "../types/Types";
@@ -31,8 +32,9 @@ const useCreateCampaign = () => {
   const [deadline, setDeadline] = useState("");
   const [formInputError, setFormInputErrors] =
     useState<FormInputErrorTypes | null>(null);
-  const [previousContributionAmount, setPreviousContributionAmount] =
-    useState<string>("");
+
+  const [contributionAccountDetails, setContributionAccountDetails] =
+    useState<ContributionAccountType | null>(null);
 
   // create campaign specific
   const [isCreateCampaignProcessing, setIsCreateCampaignProcessing] =
@@ -52,6 +54,7 @@ const useCreateCampaign = () => {
   const [claimFundsStatus, setClaimFundsStatus] =
     useState<SuccessAndErrorDetailsType | null>(null);
 
+  // claim refunds specific
   const [isClaimRefundProcessing, setIsClaimRefundProcessing] =
     useState<boolean>(false);
   const [claimRefundStatus, setClaimRefundStatus] =
@@ -108,8 +111,8 @@ const useCreateCampaign = () => {
         "Total donated so far:",
         contributionAccount.totalAmountDonated.toString()
       );
-      setPreviousContributionAmount(
-        contributionAccount.totalAmountDonated.toString()
+      setContributionAccountDetails(
+        contributionAccount as ContributionAccountType
       );
     } catch (err) {
       // ❌ PDA doesn't exist → user has not contributed yet
@@ -308,6 +311,8 @@ const useCreateCampaign = () => {
       // await new Promise((resolve) => setTimeout(resolve, 2000));
 
       console.log("✅ Claimed funds with tx:", txSig);
+      fetchCampaigns();
+      clearFormData();
       setClaimFundsStatus({
         type: SuccessAndErrorType.SUCCESS,
         message: SuccessMessage.FUNDS_CLAIMED_SUCCESSFULLY,
@@ -337,15 +342,15 @@ const useCreateCampaign = () => {
       return;
     }
 
-    if (wallet?.publicKey.toBase58() !== creator.toBase58()) {
-      console.error("⚠️ You are not the creator of this campaign");
-      return;
-    }
+    // if (wallet?.publicKey.toBase58() !== creator.toBase58()) {
+    //   console.error("⚠️ You are not the creator of this campaign");
+    //   return;
+    // }
 
     try {
       setIsClaimRefundProcessing(true);
 
-      const contributionPda = getContributionPDA(campaignPda, wallet.publicKey);
+      const contributionPda = getContributionPDA(campaignPda, creator);
 
       const txSig = await program?.methods
         .refundToContributor()
@@ -357,9 +362,12 @@ const useCreateCampaign = () => {
         })
         .rpc();
 
-      // await new Promise((resolve) => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 2000));
 
       // console.log("✅ Claimed funds with tx:", txSig);
+      fetchCampaigns();
+      clearFormData();
+      setContributionAccountDetails(null);
       setClaimRefundStatus({
         type: SuccessAndErrorType.SUCCESS,
         message: SuccessMessage.FUNDS_CLAIMED_SUCCESSFULLY,
@@ -393,6 +401,9 @@ const useCreateCampaign = () => {
     } else if (status === CloseAccountTypeEnum.CLAIM_FUNDS) {
       setIsClaimFundsProcessing(false);
       setClaimFundsStatus(null);
+    } else if (status === CloseAccountTypeEnum.CLAIM_REFUND) {
+      setIsClaimRefundProcessing(false);
+      setClaimRefundStatus(null);
     }
   };
 
@@ -415,8 +426,10 @@ const useCreateCampaign = () => {
     contributionStatus,
     isClaimFundsProcessing,
     claimFundsStatus,
+    isClaimRefundProcessing,
+    claimRefundStatus,
     formInputError,
-    previousContributionAmount,
+    contributionAccountDetails,
     onChangeCampaignName,
     onChangeCampaignDescription,
     onChangeGoalAmount,

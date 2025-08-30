@@ -52,7 +52,7 @@ const ButtonsComponent = ({
         </CustomButton>
       ) : null}
 
-      {previousContributionAmount ? (
+      {Number(previousContributionAmount) > 0 ? (
         <CustomButton
           title="Contribute"
           onClick={onClickClaimRefundButton}
