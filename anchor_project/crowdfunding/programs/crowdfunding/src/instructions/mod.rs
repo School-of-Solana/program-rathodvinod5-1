@@ -9,3 +9,6 @@ pub mod claim_funds;
 
 pub use refund::*;
 pub mod refund;
+
+pub use delete_campaign::*;
+pub mod delete_campaign;

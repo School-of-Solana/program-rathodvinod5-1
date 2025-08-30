@@ -7,24 +7,78 @@ import {
   useWallet,
 } from "@solana/wallet-adapter-react";
 
-import { AnchorProvider, Program, Idl } from "@coral-xyz/anchor";
-import { PublicKey, Connection, clusterApiUrl } from "@solana/web3.js";
+import { AnchorProvider, Program, Idl, Wallet } from "@coral-xyz/anchor";
+import { PublicKey } from "@solana/web3.js";
 import IDL from "../idl/crowdfunding.json";
-import { NETWORK } from "../utilities/Contants";
 
-// TODO: Replace with your program ID & IDL
-const PROGRAM_ID = new PublicKey(
-  "Ept1VxEScf1bzfkwfEous1ZCDj16QCirBBq9kXzYAgwG"
-);
+// type AnchorContextType = {
+//   connection: ReturnType<typeof useConnection>["connection"];
+//   provider: AnchorProvider | null;
+//   program: Program | null;
+// };
 
+// const AnchorContext = createContext<AnchorContextType | null>(null);
+
+// export function AnchorProviderContext({
+//   children,
+// }: {
+//   children: React.ReactNode;
+// }) {
+//   const { connection } = useConnection();
+//   const wallet = useAnchorWallet();
+
+//   const { provider, program } = useMemo(() => {
+//     if (!wallet) return { provider: null, program: null };
+//     // const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
+//     const provider = new AnchorProvider(connection, wallet, {
+//       commitment: "confirmed",
+//       preflightCommitment: "processed",
+//     });
+
+//     const program = new Program(IDL as Idl, provider);
+
+//     return { provider, program };
+//   }, [connection, wallet]);
+
+//   return (
+//     <AnchorContext.Provider value={{ connection, provider, program }}>
+//       {children}
+//     </AnchorContext.Provider>
+//   );
+// }
+
+// export function useAnchor() {
+//   const ctx = useContext(AnchorContext);
+//   if (!ctx)
+//     throw new Error("useAnchor must be used within AnchorProviderContext");
+//   return ctx;
+// }
+
+// -----------------------------
+// Types
+// -----------------------------
 type AnchorContextType = {
   connection: ReturnType<typeof useConnection>["connection"];
-  provider: AnchorProvider | null;
+  readOnlyProvider: AnchorProvider;
+  writeProvider: AnchorProvider | null;
   program: Program | null;
+  readOnlyProgram: Program;
 };
 
 const AnchorContext = createContext<AnchorContextType | null>(null);
 
+// -----------------------------
+// Dummy Wallet (for read-only)
+// -----------------------------
+const dummyWallet: Wallet = {
+  publicKey: PublicKey.default,
+  signTransaction: async (tx) => tx,
+  signAllTransactions: async (txs) => txs,
+};
+
+// -----------------------------
+// Context Provider
+// -----------------------------
 export function AnchorProviderContext({
   children,
 }: {
@@ -32,52 +86,46 @@ export function AnchorProviderContext({
 }) {
   const { connection } = useConnection();
   const wallet = useAnchorWallet();
-  // const wallet = useWallet();
 
-  const { provider, program } = useMemo(() => {
-    if (!wallet) return { provider: null, program: null };
-    // const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
-    const provider = new AnchorProvider(connection, wallet, {
-      commitment: "confirmed",
-      preflightCommitment: "processed",
-    });
+  const { readOnlyProvider, writeProvider, program, readOnlyProgram } =
+    useMemo(() => {
+      // Read-only provider (no wallet)
+      const readOnlyProvider = new AnchorProvider(connection, dummyWallet, {
+        commitment: "confirmed",
+        preflightCommitment: "processed",
+      });
 
-    const program = new Program(IDL as Idl, provider);
+      const readOnlyProgram = new Program(IDL as Idl, readOnlyProvider);
 
-    return { provider, program };
-  }, [connection, wallet]);
+      // Write provider (requires wallet)
+      if (wallet) {
+        const writeProvider = new AnchorProvider(connection, wallet, {
+          commitment: "confirmed",
+          preflightCommitment: "processed",
+        });
+        const program = new Program(IDL as Idl, writeProvider);
 
-  // const getProvider = () => {
-  //   if (!wallet) return null;
-  //   // const connection = useMemo(() => new Connection(NETWORK), [NETWORK]);
-  //   const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
-  //   // const connection = new Connection(NETWORK, "confirmed");
+        return { readOnlyProvider, writeProvider, program, readOnlyProgram };
+      }
 
-  //   // airdrop som sol
-  //   // const sig = await connection.requestAirdrop(
-  //   //   wallet.publicKey,
-  //   //   2 * LAMPORTS_PER_SOL
-  //   // );
-  //   // await connection.confirmTransaction(sig, "confirmed");
-  //   // console.log("Airdropped 2 SOL to", pubkey.toBase58());
-
-  //   const provider = new AnchorProvider(connection, wallet, {
-  //     commitment: "confirmed",
-  //     preflightCommitment: "processed",
-  //   });
-
-  //   // const provider = new AnchorProvider(connection, window.solana, {
-  //   //   commitment: "confirmed",
-  //   //   preflightCommitment: "processed",
-  //   // });
-  //   return provider;
-  // };
-  // const provider = getProvider();
-
-  // const program = provider ? new Program(IDL as Idl, provider) : null;
+      return {
+        readOnlyProvider,
+        readOnlyProgram,
+        writeProvider: null,
+        program: null,
+      };
+    }, [connection, wallet]);
 
   return (
-    <AnchorContext.Provider value={{ connection, provider, program }}>
+    <AnchorContext.Provider
+      value={{
+        connection,
+        readOnlyProvider,
+        writeProvider,
+        program,
+        readOnlyProgram,
+      }}
+    >
       {children}
     </AnchorContext.Provider>
   );

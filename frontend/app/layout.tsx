@@ -4,6 +4,7 @@ import "./globals.css";
 import Header from "./components/Header";
 import { SolanaWalletContextProviders } from "./context/SolanaWalletContextProvider";
 import { CampaignProvider } from "./context/CampaignContext";
+import { OverlayProvider } from "./context/ModalContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,17 +29,19 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased md:px-[180px]`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased md:px-[80px]`}
       >
         <SolanaWalletContextProviders>
           <CampaignProvider>
-            <Header />
-            <main>
-              {/* <WalletContextProvider>{children}</WalletContextProvider> */}
+            <OverlayProvider>
+              <Header />
+              <main>
+                {/* <WalletContextProvider>{children}</WalletContextProvider> */}
 
-              {children}
-            </main>
-            <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center"></footer>
+                {children}
+              </main>
+              <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center" />
+            </OverlayProvider>
           </CampaignProvider>
         </SolanaWalletContextProviders>
       </body>

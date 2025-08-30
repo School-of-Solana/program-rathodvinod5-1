@@ -24,6 +24,7 @@ import {
   SuccessAndErrorDetailsType,
 } from "../types/Types";
 import { useParams } from "next/navigation";
+import { useOverlay } from "../context/ModalContext";
 
 const useCreateCampaign = () => {
   const [campaignName, setCampaignName] = useState<string>("");
@@ -63,6 +64,7 @@ const useCreateCampaign = () => {
   // const { program } = useProgram();
   const { program, connection } = useAnchor();
   const { fetchCampaigns } = useCampaignsContext();
+  const { showAlert, isAlertOpen } = useOverlay();
 
   const wallet = useWallet(); // ✅ full wallet object (with publicKey + signTransaction)
 
@@ -90,7 +92,12 @@ const useCreateCampaign = () => {
 
   const fetchDetailsOfContribution = async (campaignPubkey: PublicKey) => {
     console.log("fetchDetailsOfContribution");
-    if (!wallet.publicKey || !program) return;
+    if (!wallet.publicKey || !program) {
+      // if (!wallet.publicKey) {
+      //   showAlert("Wallet not connected");
+      // }
+      return;
+    }
 
     const [contributionPda] = PublicKey.findProgramAddressSync(
       [
@@ -154,6 +161,7 @@ const useCreateCampaign = () => {
     setFormInputErrors(null);
     if (!wallet.publicKey) {
       console.error("⚠️ Wallet not connected");
+      showAlert("Wallet not connected");
       return;
     }
 
@@ -230,6 +238,7 @@ const useCreateCampaign = () => {
 
     if (!wallet.publicKey) {
       console.error("⚠️ Wallet not connected");
+      showAlert("Wallet not connected");
       return;
     }
 
@@ -288,6 +297,7 @@ const useCreateCampaign = () => {
   const claimFunds = async (campaignPda: PublicKey, creator: PublicKey) => {
     if (!wallet.publicKey) {
       console.error("⚠️ Wallet not connected");
+      showAlert("Wallet not connected");
       return;
     }
 
@@ -339,6 +349,7 @@ const useCreateCampaign = () => {
   const claimRefunds = async (campaignPda: PublicKey, creator: PublicKey) => {
     if (!wallet.publicKey) {
       console.error("⚠️ Wallet not connected");
+      showAlert("Wallet not connected");
       return;
     }
 

@@ -6,8 +6,8 @@ import React, {
   ReactNode,
   useEffect,
 } from "react";
-import { useAnchor } from "./SolanaConnectionProgramProvider";
 import { PublicKey } from "@solana/web3.js";
+import { useAnchor } from "./SolanaConnectionProgramProvider";
 
 export type Campaign = {
   publicKey: string; // unique id (could be publicKey.toBase58())
@@ -35,7 +35,7 @@ const CampaignContext = createContext<CampaignContextType | undefined>(
 export const CampaignProvider = ({ children }: { children: ReactNode }) => {
   const [campaigns, setCampaigns] = useState<any[] | null>(null);
 
-  const { program, connection } = useAnchor();
+  const { program, readOnlyProgram, connection } = useAnchor();
 
   useEffect(() => {
     // console.log("in useEffect");
@@ -46,7 +46,7 @@ export const CampaignProvider = ({ children }: { children: ReactNode }) => {
 
   const fetchCampaigns = async () => {
     try {
-      let campaigns = await program?.account?.campaign?.all();
+      let campaigns = await readOnlyProgram?.account?.campaign?.all();
       setCampaigns(campaigns);
       console.log("Fetched campaigns:", campaigns);
     } catch (err) {
