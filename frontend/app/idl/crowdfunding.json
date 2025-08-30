@@ -126,6 +126,43 @@
           "type": "i64"
         }
       ]
+    },
+    {
+      "name": "refund_to_contributor",
+      "discriminator": [46, 186, 139, 151, 249, 186, 63, 92],
+      "accounts": [
+        {
+          "name": "contributor",
+          "writable": true,
+          "signer": true,
+          "relations": ["contribution"]
+        },
+        {
+          "name": "campaign",
+          "writable": true
+        },
+        {
+          "name": "contribution",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [99, 111, 110, 116, 114, 105, 98, 117, 116, 111, 114]
+              },
+              {
+                "kind": "account",
+                "path": "campaign"
+              },
+              {
+                "kind": "account",
+                "path": "contributor"
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
     }
   ],
   "accounts": [
@@ -198,6 +235,11 @@
       "code": 6011,
       "name": "DescriptionTooLong",
       "msg": "Description too long"
+    },
+    {
+      "code": 6012,
+      "name": "FundsAlreadyClaimed",
+      "msg": "Funds already claimed"
     }
   ],
   "types": [
@@ -233,10 +275,6 @@
           {
             "name": "bump",
             "type": "u8"
-          },
-          {
-            "name": "refunded",
-            "type": "bool"
           },
           {
             "name": "claimed",

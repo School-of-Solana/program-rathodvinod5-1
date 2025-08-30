@@ -1,7 +1,7 @@
 "use client";
 import { useCampaignsContext } from "@/app/context/CampaignContext";
 import ButtonsComponent from "../ButtonsComponent";
-import { useParams, usePathname, useSearchParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import { formatTimestamp } from "@/app/utilities/HelperFunctions";
 import ProgressBar from "@/app/components/ProgressBar";
 import useCreateCampaign from "@/app/create/useCreateCampaign";
@@ -17,10 +17,12 @@ const CampaignDetails = () => {
     contributionStatus,
     claimFundsStatus,
     goalAmount,
+    previousContributionAmount,
     closeAlertTypeStatus,
     onChangeGoalAmount,
     contributToCampaign,
     claimFunds,
+    fetchDetailsOfContribution,
   } = useCreateCampaign();
 
   const params = useParams();
@@ -55,6 +57,12 @@ const CampaignDetails = () => {
   const isCampaignActive = dateNow < deadlineInString;
   console.log("isCampaignActive", isCampaignActive, dateNow, deadlineInString);
 
+  const fetchContributionsDetailsIfExists = () => {
+    // Fetch contributions for the campaign
+    console.log("fetchContributionsIfExists");
+    fetchDetailsOfContribution(new PublicKey(campaign!));
+  };
+
   return (
     <div className="px-[180px]">
       {contributionStatus ? (
@@ -86,13 +94,13 @@ const CampaignDetails = () => {
         <p className="text-gray-700 mt-4">
           Target amount:{" "}
           <span className="font-bold">
-            {campaignDetails.account.goalAmount.toString()} sol
+            {campaignDetails.account.goalAmount.toString()} lamports
           </span>
         </p>
         <p className="my-2 text-gray-700">
           Total raised:{" "}
           <span className="font-bold">
-            {campaignDetails.account.totalDonated.toString()} sol
+            {campaignDetails.account.totalDonated.toString()} lamports
           </span>
         </p>
         <ProgressBar
@@ -122,11 +130,23 @@ const CampaignDetails = () => {
           campaignPublicKey={campaignDetails.account.creator as string}
           isContributionProcessing={isContributionProcessing}
           isClaimFundsProcessing={isClaimFundsProcessing}
+          isClaimRefundProcessing={false}
           onClickContributeButton={onClickContributeButton}
           onClickClaimButton={onClickClaimFundsButton}
+          onClickClaimRefundButton={() => {}}
           isCampaignActive={isCampaignActive}
+          previousContributionAmount={previousContributionAmount}
         />
       </div>
+
+      {previousContributionAmount ? (
+        <div className="mt-4">
+          <p>
+            Your prevous Contributions:{" "}
+            <b>{previousContributionAmount} lamports</b>
+          </p>
+        </div>
+      ) : null}
     </div>
   );
 };

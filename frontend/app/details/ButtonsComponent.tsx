@@ -6,17 +6,23 @@ import useCreateCampaign from "../create/useCreateCampaign";
 const ButtonsComponent = ({
   isContributionProcessing = false,
   isClaimFundsProcessing = false,
+  isClaimRefundProcessing = false,
   campaignPublicKey,
   onClickContributeButton,
   onClickClaimButton,
+  onClickClaimRefundButton,
   isCampaignActive = false,
+  previousContributionAmount = "",
 }: {
   isContributionProcessing?: boolean;
   isClaimFundsProcessing?: boolean;
   campaignPublicKey?: string;
+  isClaimRefundProcessing?: boolean;
   onClickContributeButton?: () => void;
   onClickClaimButton?: () => void;
+  onClickClaimRefundButton?: () => void;
   isCampaignActive?: boolean;
+  previousContributionAmount?: string;
 }) => {
   const { publicKey, connected, connect, disconnect } = useWallet();
   // const { isProcessing, contributToCampaign } = useCreateCampaign();
@@ -42,6 +48,20 @@ const ButtonsComponent = ({
             <div className="w-6 h-6 animate-spin rounded-full border-dashed border-6 border-white" />
           ) : (
             <p>Contribute</p>
+          )}
+        </CustomButton>
+      ) : null}
+
+      {previousContributionAmount ? (
+        <CustomButton
+          title="Contribute"
+          onClick={onClickClaimRefundButton}
+          customCss="w-[200px]"
+        >
+          {isClaimRefundProcessing ? (
+            <div className="w-6 h-6 animate-spin rounded-full border-dashed border-6 border-white" />
+          ) : (
+            <p>Claim Refund</p>
           )}
         </CustomButton>
       ) : null}

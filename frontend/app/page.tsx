@@ -40,10 +40,12 @@ export default function Home() {
                   {campaign.account.description}
                 </p>
                 <p className="text-gray-700 mt-4">
-                  Target amount: {campaign.account.goalAmount.toString()} sol
+                  Target amount: {campaign.account.goalAmount.toString()}{" "}
+                  lamports
                 </p>
                 <p className="my-2 text-gray-700">
-                  Total raised {campaign.account.totalDonated.toString()} sol
+                  Total raised {campaign.account.totalDonated.toString()}{" "}
+                  lamports
                 </p>
                 <ProgressBar
                   current={campaign.account.totalDonated.toString()}
