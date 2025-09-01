@@ -1,18 +1,18 @@
 use anchor_lang::prelude::*;
 use crate:: {
-    states::*,
-    errors::*,
+    states::Campaign,
+    errors::CustomError,
 };
 
-pub fn delete_campaign_account(
+pub fn delete_campaign(
     ctx: Context<DeleteCampaignDataAccount>,
-    title: String,
+    // title: String,
 ) -> Result<()> {
     Ok(())
 }
 
 #[derive(Accounts)]
-#[instruction(title: String)]
+// #[instruction(title: String)]
 pub struct DeleteCampaignDataAccount<'info> {
     #[account(mut)]
     pub creator: Signer<'info>,
@@ -21,8 +21,8 @@ pub struct DeleteCampaignDataAccount<'info> {
         mut,
         has_one = creator @ CustomError::UnauthorizedOwner,
         close = creator,
-        seeds = [b"campaign", creator.key().as_ref(), title.as_bytes()],
-        bump,
+        // seeds = [b"campaign", creator.key().as_ref(), title.as_bytes()],
+        // bump,
     )]
     pub campaign: Account<'info, Campaign>,
 

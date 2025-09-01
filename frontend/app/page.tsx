@@ -1,5 +1,5 @@
 "use client";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 import CustomButton from "./components/Button";
 import { CampaignType } from "./types/Types";

@@ -30,6 +30,27 @@
       "args": []
     },
     {
+      "name": "close_campaign",
+      "discriminator": [65, 49, 110, 7, 63, 238, 206, 77],
+      "accounts": [
+        {
+          "name": "creator",
+          "writable": true,
+          "signer": true,
+          "relations": ["campaign"]
+        },
+        {
+          "name": "campaign",
+          "writable": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
       "name": "contribute_amount",
       "discriminator": [174, 163, 90, 174, 63, 14, 253, 115],
       "accounts": [

@@ -7,22 +7,30 @@ const ButtonsComponent = ({
   isContributionProcessing = false,
   isClaimFundsProcessing = false,
   isClaimRefundProcessing = false,
+  isCloseAccountProcessing = false,
+  canDeleteAccount = false,
   campaignPublicKey,
   onClickContributeButton,
   onClickClaimButton,
   onClickClaimRefundButton,
+  onClickDeleteCampaignAccount,
   isCampaignActive = false,
   previousContributionAmount = "",
+  campaignAmount = "",
 }: {
   isContributionProcessing?: boolean;
   isClaimFundsProcessing?: boolean;
   campaignPublicKey?: string;
   isClaimRefundProcessing?: boolean;
+  isCloseAccountProcessing?: boolean;
+  canDeleteAccount?: boolean;
   onClickContributeButton?: () => void;
   onClickClaimButton?: () => void;
   onClickClaimRefundButton?: () => void;
+  onClickDeleteCampaignAccount?: () => void;
   isCampaignActive?: boolean;
   previousContributionAmount?: string;
+  campaignAmount?: string;
 }) => {
   const { publicKey, connected, connect, disconnect } = useWallet();
   // const { isProcessing, contributToCampaign } = useCreateCampaign();
@@ -66,7 +74,7 @@ const ButtonsComponent = ({
         </CustomButton>
       ) : null}
 
-      {isCreator ? (
+      {isCreator && Number(campaignAmount) <= 0 ? (
         <CustomButton
           title="Claim Funds"
           onClick={onClickClaimButton}
@@ -76,6 +84,20 @@ const ButtonsComponent = ({
             <div className="w-6 h-6 animate-spin rounded-full border-dashed border-6 border-white" />
           ) : (
             <p>Claim Funds</p>
+          )}
+        </CustomButton>
+      ) : null}
+
+      {canDeleteAccount ? (
+        <CustomButton
+          title="Close Account"
+          onClick={onClickDeleteCampaignAccount}
+          customCss="w-[200px]"
+        >
+          {isCloseAccountProcessing ? (
+            <div className="w-6 h-6 animate-spin rounded-full border-dashed border-6 border-white" />
+          ) : (
+            <p>Close account</p>
           )}
         </CustomButton>
       ) : null}

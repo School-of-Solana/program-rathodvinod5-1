@@ -1,6 +1,5 @@
 "use client";
 import { ChangeEvent, useEffect, useState } from "react";
-
 import { useWallet } from "@solana/wallet-adapter-react";
 import { web3, BN } from "@project-serum/anchor";
 import { AnchorError } from "@coral-xyz/anchor";
@@ -23,7 +22,7 @@ import {
   FormInputErrorTypes,
   SuccessAndErrorDetailsType,
 } from "../types/Types";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useOverlay } from "../context/ModalContext";
 
 const useCreateCampaign = () => {
@@ -61,10 +60,16 @@ const useCreateCampaign = () => {
   const [claimRefundStatus, setClaimRefundStatus] =
     useState<SuccessAndErrorDetailsType | null>(null);
 
+  const [isCloseAccountProcessing, setIsCloseAccountProcessing] =
+    useState<boolean>(false);
+  const [closeAccountStatus, setCloseAccountStatus] =
+    useState<SuccessAndErrorDetailsType | null>(null);
+
   // const { program } = useProgram();
   const { program, connection } = useAnchor();
   const { fetchCampaigns } = useCampaignsContext();
   const { showAlert, isAlertOpen } = useOverlay();
+  const router = useRouter();
 
   const wallet = useWallet(); // ✅ full wallet object (with publicKey + signTransaction)
 
@@ -402,6 +407,38 @@ const useCreateCampaign = () => {
     }
   };
 
+  const deleteCampaignAccount = async (campaignPda: PublicKey) => {
+    if (!wallet.publicKey) {
+      console.error("⚠️ Wallet not connected");
+      showAlert("Wallet not connected");
+      return;
+    }
+
+    // const campaignPDA = getCampaignPDA(wallet.publicKey, campaignName);
+
+    try {
+      setIsCloseAccountProcessing(true);
+      const txSig = await program?.methods
+        .closeCampaign()
+        .accounts({
+          creator: wallet.publicKey,
+          campaign: campaignPda,
+          systemProgram: web3.SystemProgram.programId,
+        })
+        .rpc();
+
+      // await new Promise((resolve) => setTimeout(resolve, 2000));
+
+      console.log("✅ Campaign created with tx:", txSig);
+      fetchCampaigns();
+      router.push("/");
+    } catch (error) {
+      console.log("Error while deleting account: ", error);
+    } finally {
+      setIsCloseAccountProcessing(false);
+    }
+  };
+
   const closeAlertTypeStatus = (status: CloseAccountTypeEnum) => {
     if (status === CloseAccountTypeEnum.CREATE_CAMPAIGN) {
       setIsCreateCampaignProcessing(false);
@@ -439,6 +476,7 @@ const useCreateCampaign = () => {
     claimFundsStatus,
     isClaimRefundProcessing,
     claimRefundStatus,
+    isCloseAccountProcessing,
     formInputError,
     contributionAccountDetails,
     onChangeCampaignName,
@@ -452,6 +490,7 @@ const useCreateCampaign = () => {
     closeAlertTypeStatus,
     fetchDetailsOfContribution,
     claimRefunds,
+    deleteCampaignAccount,
   };
 };
 

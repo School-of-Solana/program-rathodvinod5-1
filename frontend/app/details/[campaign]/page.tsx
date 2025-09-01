@@ -1,4 +1,6 @@
 "use client";
+import { PublicKey } from "@solana/web3.js";
+import { useWallet } from "@solana/wallet-adapter-react";
 import { useCampaignsContext } from "@/app/context/CampaignContext";
 import ButtonsComponent from "../ButtonsComponent";
 import { useParams } from "next/navigation";
@@ -8,7 +10,7 @@ import {
 } from "@/app/utilities/HelperFunctions";
 import ProgressBar from "@/app/components/ProgressBar";
 import useCreateCampaign from "@/app/create/useCreateCampaign";
-import { PublicKey } from "@solana/web3.js";
+
 import Alert from "@/app/components/Alert";
 import { CloseAccountTypeEnum } from "@/app/utilities/Contants";
 
@@ -17,19 +19,22 @@ const CampaignDetails = () => {
   const {
     isContributionProcessing,
     isClaimFundsProcessing,
+    isClaimRefundProcessing,
+    isCloseAccountProcessing,
     contributionStatus,
     claimFundsStatus,
+    claimRefundStatus,
     goalAmount,
     contributionAccountDetails,
     closeAlertTypeStatus,
     onChangeGoalAmount,
     contributToCampaign,
     claimFunds,
-    isClaimRefundProcessing,
-    claimRefundStatus,
     claimRefunds,
+    deleteCampaignAccount,
   } = useCreateCampaign();
 
+  const wallet = useWallet();
   const params = useParams();
   let { campaign } = params;
 
@@ -41,6 +46,8 @@ const CampaignDetails = () => {
     campignPublicKey = campignPublicKey.replace(/"/g, "");
     return campignPublicKey == campaign;
   });
+
+  if (!campaignDetails) return null;
 
   const onClickContributeButton = () => {
     console.log("onClickContributeButton");
@@ -65,20 +72,37 @@ const CampaignDetails = () => {
     }
   };
 
+  const onClickCloseAccountButton = () => {
+    deleteCampaignAccount(new PublicKey(campaign!));
+  };
+
   let isCampaignActive = false;
+  let deadlineInString: Date | undefined;
   if (campaignDetails?.account?.deadline) {
-    const deadlineInString = new Date(
-      campaignDetails?.account?.deadline * 1000
-    );
+    deadlineInString = new Date(campaignDetails?.account?.deadline * 1000);
     const dateNow = new Date();
 
     isCampaignActive = dateNow < deadlineInString;
   }
-  // console.log("isCampaignActive", isCampaignActive, dateNow, deadlineInString);
+
   const previousContributionAmount =
     contributionAccountDetails?.totalAmountDonated.toString();
+  const canDeleteAccount =
+    wallet?.publicKey?.toString() ==
+      campaignDetails.account.creator.toString() &&
+    campaignDetails.account.totalDonated.toString() <= 0 &&
+    !isCampaignActive;
 
-  if (!campaignDetails) return null;
+  const campaignAmount = lamportsToSol(
+    campaignDetails.account.totalDonated.toString()
+  );
+
+  console.log(
+    "canDeleteAccount: ",
+    canDeleteAccount,
+    wallet?.publicKey?.toString(),
+    campaignDetails.account.creator.toString()
+  );
 
   return (
     <div className="px-[180px]">
@@ -165,10 +189,14 @@ const CampaignDetails = () => {
           isContributionProcessing={isContributionProcessing}
           isClaimFundsProcessing={isClaimFundsProcessing}
           isClaimRefundProcessing={isClaimRefundProcessing}
+          isCloseAccountProcessing={isCloseAccountProcessing}
+          canDeleteAccount={canDeleteAccount}
           onClickContributeButton={onClickContributeButton}
           onClickClaimButton={onClickClaimFundsButton}
           onClickClaimRefundButton={onClickClaimRefundButton}
+          onClickDeleteCampaignAccount={onClickCloseAccountButton}
           isCampaignActive={isCampaignActive}
+          campaignAmount={campaignAmount}
           previousContributionAmount={previousContributionAmount}
         />
       </div>

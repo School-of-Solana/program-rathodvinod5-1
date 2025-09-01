@@ -1,9 +1,8 @@
 #![allow(unexpected_cfgs)]
 
-use crate::instructions::*;
-use anchor_lang::prelude::*;
-
 pub mod instructions;
+use instructions::*;
+use anchor_lang::prelude::*;
 pub mod states;
 pub mod errors;
 
@@ -36,5 +35,9 @@ pub mod crowdfunding {
 
     pub fn refund_to_contributor(ctx: Context<Refund>) -> Result<()> {
         refund(ctx)
+    }
+
+    pub fn close_campaign(ctx: Context<DeleteCampaignDataAccount>) -> Result<()> {
+        delete_campaign(ctx)
     }
 }
