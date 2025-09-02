@@ -58,7 +58,6 @@ export default function Home() {
                 <CustomButton
                   title="View Details"
                   route={`/details/${campaign.publicKey.toString()}`}
-                  // onClick={() => router.push(`/details/${campaign}`)}
                 >
                   View Details
                 </CustomButton>
@@ -69,5 +68,3 @@ export default function Home() {
     </div>
   );
 }
-
-// Hd8Hcqi261cs426afPUFzfhUuDGg3XEiUqvpo7oADEgF

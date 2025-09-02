@@ -10,12 +10,6 @@ const Header = () => {
 
   const { publicKey, connected, connect, disconnect } = useWallet();
 
-  // useEffect(() => {
-  //   if (connected && publicKey) {
-  //     // console.log("Wallet connected:", publicKey.toBase58());
-  //   }
-  // }, [connected, publicKey]);
-
   const onClickButton = () => {
     if (publicKey) {
       disconnect();

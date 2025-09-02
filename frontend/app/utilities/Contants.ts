@@ -7,7 +7,7 @@ export const PROGRAM_ID = new PublicKey(
 ); // replace this after deployment
 
 // Solana devnet RPC endpoint
-export const NETWORK = "https://api.devnet.solana.com"; // "http://127.0.0.1:8899"; //
+export const NETWORK = "https://api.devnet.solana.com";
 
 // Commitment level
 export const OPTS = {

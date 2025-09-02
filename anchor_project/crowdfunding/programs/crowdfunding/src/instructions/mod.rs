@@ -12,3 +12,6 @@ pub mod refund;
 
 pub use delete_campaign::*;
 pub mod delete_campaign;
+
+pub use recontribute::*;
+pub mod recontribute;

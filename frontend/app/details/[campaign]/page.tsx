@@ -3,7 +3,7 @@ import { PublicKey } from "@solana/web3.js";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useCampaignsContext } from "@/app/context/CampaignContext";
 import ButtonsComponent from "../ButtonsComponent";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import {
   formatTimestamp,
   lamportsToSol,
@@ -12,7 +12,10 @@ import ProgressBar from "@/app/components/ProgressBar";
 import useCreateCampaign from "@/app/create/useCreateCampaign";
 
 import Alert from "@/app/components/Alert";
-import { CloseAccountTypeEnum } from "@/app/utilities/Contants";
+import {
+  CloseAccountTypeEnum,
+  SuccessAndErrorType,
+} from "@/app/utilities/Contants";
 
 const CampaignDetails = () => {
   const { campaigns } = useCampaignsContext();
@@ -34,6 +37,7 @@ const CampaignDetails = () => {
     deleteCampaignAccount,
   } = useCreateCampaign();
 
+  const router = useRouter();
   const wallet = useWallet();
   const params = useParams();
   let { campaign } = params;
@@ -47,16 +51,12 @@ const CampaignDetails = () => {
     return campignPublicKey == campaign;
   });
 
-  if (!campaignDetails) return null;
-
   const onClickContributeButton = () => {
-    console.log("onClickContributeButton");
     if (!isCampaignActive) return;
     contributToCampaign(new PublicKey(campaign!));
   };
 
   const onClickClaimFundsButton = () => {
-    console.log("onClickClaimFundsButton");
     claimFunds(
       new PublicKey(campaign!),
       campaignDetails.account.creator as PublicKey
@@ -85,24 +85,24 @@ const CampaignDetails = () => {
     isCampaignActive = dateNow < deadlineInString;
   }
 
-  const previousContributionAmount =
-    contributionAccountDetails?.totalAmountDonated.toString();
-  const canDeleteAccount =
-    wallet?.publicKey?.toString() ==
-      campaignDetails.account.creator.toString() &&
-    campaignDetails.account.totalDonated.toString() <= 0 &&
-    !isCampaignActive;
+  let previousContributionAmount = "0";
+  if (contributionAccountDetails?.totalAmountDonated) {
+    previousContributionAmount =
+      contributionAccountDetails?.totalAmountDonated.toString();
+  }
 
-  const campaignAmount = lamportsToSol(
-    campaignDetails.account.totalDonated.toString()
-  );
+  let [canDeleteAccount, campaignAmount] = [false, "0"];
+  if (wallet?.publicKey && campaignDetails?.account) {
+    canDeleteAccount =
+      wallet?.publicKey?.toString() ==
+        campaignDetails?.account?.creator.toString() &&
+      campaignDetails?.account?.totalDonated.toString() <= 0 &&
+      !isCampaignActive;
 
-  console.log(
-    "canDeleteAccount: ",
-    canDeleteAccount,
-    wallet?.publicKey?.toString(),
-    campaignDetails.account.creator.toString()
-  );
+    campaignAmount = lamportsToSol(
+      campaignDetails?.account?.totalDonated.toString()
+    );
+  }
 
   return (
     <div className="px-[180px]">
@@ -118,9 +118,12 @@ const CampaignDetails = () => {
       {claimFundsStatus ? (
         <Alert
           status={claimFundsStatus}
-          onCloseHandler={() =>
-            closeAlertTypeStatus(CloseAccountTypeEnum.CLAIM_FUNDS)
-          }
+          onCloseHandler={() => {
+            closeAlertTypeStatus(CloseAccountTypeEnum.CLAIM_FUNDS);
+            if (claimFundsStatus.type == SuccessAndErrorType.SUCCESS) {
+              router.push("/");
+            }
+          }}
         />
       ) : null}
 
@@ -133,81 +136,89 @@ const CampaignDetails = () => {
         />
       ) : null}
 
-      <div className="w-full h-fit border border-teal-600 p-4 rounded-md mt-[60px]">
-        <p className="font-bold text-lg my-2 capitalize">
-          {campaignDetails.account.title}
-        </p>
+      {campaignDetails ? (
+        <>
+          <div className="w-full h-fit border border-teal-600 p-4 rounded-md mt-[60px]">
+            <p className="font-bold text-lg my-2 capitalize">
+              {campaignDetails.account.title}
+            </p>
 
-        <p className="text-gray-700 font-semibold capitalize">
-          {campaignDetails.account.description}
-        </p>
-        <p className="text-gray-700 mt-4">
-          Target amount:{" "}
-          <span className="font-bold">
-            {campaignDetails.account.goalAmount.toString()} lamports
-          </span>{" "}
-          /{" "}
-          <span className="font-bold">
-            {lamportsToSol(campaignDetails.account.goalAmount.toString())} sol
-          </span>
-        </p>
-        <p className="my-2 text-gray-700">
-          Total raised:{" "}
-          <span className="font-bold">
-            {campaignDetails.account.totalDonated.toString()} lamports
-          </span>{" "}
-          /{" "}
-          <span className="font-bold">
-            {lamportsToSol(campaignDetails.account.totalDonated.toString())} sol
-          </span>
-        </p>
-        <ProgressBar
-          current={campaignDetails.account.totalDonated.toString()}
-          total={campaignDetails.account.goalAmount.toString()}
-        />
-        <p className="my-2 text-gray-700">
-          Deadline -{" "}
-          {formatTimestamp(campaignDetails.account.deadline.toString())}
-        </p>
+            <p className="text-gray-700 font-semibold capitalize">
+              {campaignDetails.account.description}
+            </p>
+            <p className="text-gray-700 mt-4">
+              Target amount:{" "}
+              <span className="font-bold">
+                {campaignDetails.account.goalAmount.toString()} lamports
+              </span>{" "}
+              /{" "}
+              <span className="font-bold">
+                {lamportsToSol(campaignDetails.account.goalAmount.toString())}{" "}
+                sol
+              </span>
+            </p>
+            <p className="my-2 text-gray-700">
+              Total raised:{" "}
+              <span className="font-bold">
+                {campaignDetails.account.totalDonated.toString()} lamports
+              </span>{" "}
+              /{" "}
+              <span className="font-bold">
+                {lamportsToSol(campaignDetails.account.totalDonated.toString())}{" "}
+                sol
+              </span>
+            </p>
+            <ProgressBar
+              current={campaignDetails.account.totalDonated.toString()}
+              total={campaignDetails.account.goalAmount.toString()}
+            />
+            <p className="my-2 text-gray-700">
+              Deadline -{" "}
+              {formatTimestamp(campaignDetails.account.deadline.toString())}
+            </p>
 
-        {isCampaignActive ? (
-          <div className="my-4">
-            <label className="my-2 text-gray-700">Contribution Amount</label>
-            <input
-              type="number"
-              placeholder="In Lamports"
-              value={goalAmount}
-              onChange={onChangeGoalAmount}
-              className="border border-teal-600 p-2 rounded w-full"
-              required
+            {isCampaignActive ? (
+              <div className="my-4">
+                <label className="my-2 text-gray-700">
+                  Contribution Amount
+                </label>
+                <input
+                  type="number"
+                  placeholder="In Lamports"
+                  value={goalAmount}
+                  onChange={onChangeGoalAmount}
+                  className="border border-teal-600 p-2 rounded w-full"
+                  required
+                />
+              </div>
+            ) : null}
+
+            <ButtonsComponent
+              campaignPublicKey={campaignDetails.account.creator as string}
+              isContributionProcessing={isContributionProcessing}
+              isClaimFundsProcessing={isClaimFundsProcessing}
+              isClaimRefundProcessing={isClaimRefundProcessing}
+              isCloseAccountProcessing={isCloseAccountProcessing}
+              canDeleteAccount={canDeleteAccount}
+              onClickContributeButton={onClickContributeButton}
+              onClickClaimButton={onClickClaimFundsButton}
+              onClickClaimRefundButton={onClickClaimRefundButton}
+              onClickDeleteCampaignAccount={onClickCloseAccountButton}
+              isCampaignActive={isCampaignActive}
+              campaignAmount={campaignAmount}
+              previousContributionAmount={previousContributionAmount}
             />
           </div>
-        ) : null}
 
-        <ButtonsComponent
-          campaignPublicKey={campaignDetails.account.creator as string}
-          isContributionProcessing={isContributionProcessing}
-          isClaimFundsProcessing={isClaimFundsProcessing}
-          isClaimRefundProcessing={isClaimRefundProcessing}
-          isCloseAccountProcessing={isCloseAccountProcessing}
-          canDeleteAccount={canDeleteAccount}
-          onClickContributeButton={onClickContributeButton}
-          onClickClaimButton={onClickClaimFundsButton}
-          onClickClaimRefundButton={onClickClaimRefundButton}
-          onClickDeleteCampaignAccount={onClickCloseAccountButton}
-          isCampaignActive={isCampaignActive}
-          campaignAmount={campaignAmount}
-          previousContributionAmount={previousContributionAmount}
-        />
-      </div>
-
-      {Number(previousContributionAmount) > 0 ? (
-        <div className="mt-4">
-          <p>
-            Your previous Contributions:{" "}
-            <b>{previousContributionAmount} lamports</b>
-          </p>
-        </div>
+          {Number(previousContributionAmount) > 0 ? (
+            <div className="mt-4">
+              <p>
+                Your previous Contributions:{" "}
+                <b>{previousContributionAmount} lamports</b>
+              </p>
+            </div>
+          ) : null}
+        </>
       ) : null}
     </div>
   );

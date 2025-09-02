@@ -1,7 +1,22 @@
 "use client";
 import { useWallet } from "@solana/wallet-adapter-react";
 import CustomButton from "../components/Button";
-import useCreateCampaign from "../create/useCreateCampaign";
+
+type ButtonsComponentProps = {
+  isContributionProcessing?: boolean;
+  isClaimFundsProcessing?: boolean;
+  isClaimRefundProcessing?: boolean;
+  isCloseAccountProcessing?: boolean;
+  canDeleteAccount?: boolean;
+  campaignPublicKey?: string;
+  onClickContributeButton?: () => void;
+  onClickClaimButton?: () => void;
+  onClickClaimRefundButton?: () => void;
+  onClickDeleteCampaignAccount?: () => void;
+  isCampaignActive?: boolean;
+  previousContributionAmount?: string;
+  campaignAmount?: string;
+};
 
 const ButtonsComponent = ({
   isContributionProcessing = false,
@@ -17,28 +32,12 @@ const ButtonsComponent = ({
   isCampaignActive = false,
   previousContributionAmount = "",
   campaignAmount = "",
-}: {
-  isContributionProcessing?: boolean;
-  isClaimFundsProcessing?: boolean;
-  campaignPublicKey?: string;
-  isClaimRefundProcessing?: boolean;
-  isCloseAccountProcessing?: boolean;
-  canDeleteAccount?: boolean;
-  onClickContributeButton?: () => void;
-  onClickClaimButton?: () => void;
-  onClickClaimRefundButton?: () => void;
-  onClickDeleteCampaignAccount?: () => void;
-  isCampaignActive?: boolean;
-  previousContributionAmount?: string;
-  campaignAmount?: string;
-}) => {
-  const { publicKey, connected, connect, disconnect } = useWallet();
-  // const { isProcessing, contributToCampaign } = useCreateCampaign();
+}: ButtonsComponentProps) => {
+  const { publicKey } = useWallet();
 
   const isCreator = (() => {
     let pubKey = JSON.stringify(campaignPublicKey);
     pubKey = pubKey.replace(/"/g, "");
-    console.log("pubKey: ", pubKey);
     return pubKey === publicKey?.toString();
   })();
 
@@ -74,7 +73,7 @@ const ButtonsComponent = ({
         </CustomButton>
       ) : null}
 
-      {isCreator && Number(campaignAmount) <= 0 ? (
+      {isCreator && Number(campaignAmount) >= 0 ? (
         <CustomButton
           title="Claim Funds"
           onClick={onClickClaimButton}

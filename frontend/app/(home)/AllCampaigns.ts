@@ -5,15 +5,7 @@ import { PROGRAM_ID } from "../utilities/Contants";
 import { AnchorProvider } from "@project-serum/anchor";
 import { useProgram } from "../context/ProgramContextProvider";
 
-const connection = new Connection("https://api.devnet.solana.com");
-
 export async function getAllCampaigns(wallet: any) {
-  //   const provider = new AnchorProvider(
-  //     connection,
-  //     wallet,
-  //     AnchorProvider.defaultOptions()
-  //   );
-  //   const program = new Program(idl as any, PROGRAM_ID, provider);
   const { program } = useProgram();
 
   // This fetches ALL accounts of type Campaign owned by your program

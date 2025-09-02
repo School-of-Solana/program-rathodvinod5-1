@@ -90,7 +90,6 @@ const CreateCampaign = () => {
           <input
             type="datetime-local"
             value={deadline}
-            // onChange={(e) => setDeadline(e.target.value)}
             onChange={onChangeDeadline}
             className="border border-teal-600 p-2 rounded w-full"
             required

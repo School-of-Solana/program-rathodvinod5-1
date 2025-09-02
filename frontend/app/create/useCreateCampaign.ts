@@ -65,10 +65,9 @@ const useCreateCampaign = () => {
   const [closeAccountStatus, setCloseAccountStatus] =
     useState<SuccessAndErrorDetailsType | null>(null);
 
-  // const { program } = useProgram();
   const { program, connection } = useAnchor();
   const { fetchCampaigns } = useCampaignsContext();
-  const { showAlert, isAlertOpen } = useOverlay();
+  const { showAlert } = useOverlay();
   const router = useRouter();
 
   const wallet = useWallet(); // ✅ full wallet object (with publicKey + signTransaction)
@@ -96,11 +95,7 @@ const useCreateCampaign = () => {
     setDeadline(event.target.value);
 
   const fetchDetailsOfContribution = async (campaignPubkey: PublicKey) => {
-    console.log("fetchDetailsOfContribution");
     if (!wallet.publicKey || !program) {
-      // if (!wallet.publicKey) {
-      //   showAlert("Wallet not connected");
-      // }
       return;
     }
 
@@ -127,7 +122,6 @@ const useCreateCampaign = () => {
         contributionAccount as ContributionAccountType
       );
     } catch (err) {
-      // ❌ PDA doesn't exist → user has not contributed yet
       console.log("No previous contribution found");
     }
   };
@@ -257,27 +251,52 @@ const useCreateCampaign = () => {
 
       // ✅ Convert inputs
       const goalLamports = new BN(goalAmount);
-      const contributionPda = getContributionPDA(campaignPda, wallet.publicKey);
 
-      const txSig = await program?.methods
-        .contributeAmount(goalLamports)
-        .accounts({
-          signer: wallet.publicKey,
-          campaign: campaignPda,
-          contirbution: contributionPda,
-          systemProgram: web3.SystemProgram.programId,
-        })
-        .rpc();
+      if (contributionAccountDetails) {
+        const [contributionPda] = PublicKey.findProgramAddressSync(
+          [
+            Buffer.from("contributor"),
+            campaignPda.toBuffer(),
+            wallet.publicKey.toBuffer(),
+          ],
+          program!.programId
+        );
+        const txSig = await program?.methods
+          .recontributeAmount(goalLamports)
+          .accounts({
+            signer: wallet.publicKey,
+            campaign: campaignPda,
+            contribution: contributionPda,
+            systemProgram: web3.SystemProgram.programId,
+          })
+          .rpc();
 
-      // await new Promise((resolve) => setTimeout(resolve, 2000));
+        console.log("✅ Re-Contributed to campaign with tx:", txSig);
+        console.log("📍 Contribution PDA:", contributionPda.toBase58());
+      } else {
+        const contributionPda = getContributionPDA(
+          campaignPda,
+          wallet.publicKey
+        );
+        const txSig = await program?.methods
+          .contributeAmount(goalLamports)
+          .accounts({
+            signer: wallet.publicKey,
+            campaign: campaignPda,
+            contirbution: contributionPda,
+            systemProgram: web3.SystemProgram.programId,
+          })
+          .rpc();
 
-      // console.log("✅ Contributed to campaign with tx:", txSig);
-      console.log("📍 Contribution PDA:", contributionPda.toBase58());
+        console.log("✅ Contributed to campaign with tx:", txSig);
+        console.log("📍 Contribution PDA:", contributionPda.toBase58());
+      }
+      fetchDetailsOfContribution(campaignPda);
+      setContributionAccountDetails(null);
       setContributionStatuss({
         type: SuccessAndErrorType.SUCCESS,
         message: SuccessMessage.CONTRIBUTION_SUCCESSFULL,
       });
-      // fetchDetailsOfCampaingAccount(campaignPda);
       fetchCampaigns();
       clearFormData();
     } catch (err) {
@@ -413,8 +432,6 @@ const useCreateCampaign = () => {
       showAlert("Wallet not connected");
       return;
     }
-
-    // const campaignPDA = getCampaignPDA(wallet.publicKey, campaignName);
 
     try {
       setIsCloseAccountProcessing(true);

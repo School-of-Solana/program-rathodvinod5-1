@@ -35,11 +35,7 @@ export default function RootLayout({
           <CampaignProvider>
             <OverlayProvider>
               <Header />
-              <main>
-                {/* <WalletContextProvider>{children}</WalletContextProvider> */}
-
-                {children}
-              </main>
+              <main>{children}</main>
               <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center" />
             </OverlayProvider>
           </CampaignProvider>

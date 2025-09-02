@@ -149,6 +149,37 @@
       ]
     },
     {
+      "name": "recontribute_amount",
+      "discriminator": [137, 81, 150, 136, 171, 46, 155, 38],
+      "accounts": [
+        {
+          "name": "contributor",
+          "writable": true,
+          "signer": true,
+          "relations": ["contribution"]
+        },
+        {
+          "name": "campaign",
+          "writable": true,
+          "relations": ["contribution"]
+        },
+        {
+          "name": "contribution",
+          "writable": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
       "name": "refund_to_contributor",
       "discriminator": [46, 186, 139, 151, 249, 186, 63, 92],
       "accounts": [

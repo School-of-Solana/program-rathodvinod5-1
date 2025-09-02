@@ -40,4 +40,11 @@ pub mod crowdfunding {
     pub fn close_campaign(ctx: Context<DeleteCampaignDataAccount>) -> Result<()> {
         delete_campaign(ctx)
     }
+
+    pub fn recontribute_amount(
+        ctx: Context<ReContribute>, 
+        amount: u64
+    ) -> Result<()> {
+        recontribute(ctx, amount)
+    }
 }

@@ -1,13 +1,14 @@
 use anchor_lang::prelude::*;
 use anchor_lang::solana_program:: {
+    system_instruction::transfer,
     program::invoke,
-    system_instruction::transfer
+};
+use crate:: {
+    states::*,
+    errors::*,
 };
 
-use crate::states::*;
-use crate::errors::*;
-
-pub fn contribute(ctx: Context<Contribute>, amount: u64) -> Result<()> {
+pub fn recontribute(ctx: Context<ReContribute>, amount: u64) -> Result<()> {
     require!(amount > 0, CustomError::InsufficientFunds);
 
     let contribution_account = &mut ctx.accounts.contribution;
@@ -20,7 +21,11 @@ pub fn contribute(ctx: Context<Contribute>, amount: u64) -> Result<()> {
         CustomError::DeadlinePassed
     );
 
-    let transfer_instruction = transfer(&contributor.key(), &campaign_account.key(), amount);
+    let transfer_instruction = transfer(
+        &contributor.key(), 
+        &campaign_account.key(), 
+        amount
+    );
 
     let _ = invoke(
         &transfer_instruction,
@@ -30,8 +35,6 @@ pub fn contribute(ctx: Context<Contribute>, amount: u64) -> Result<()> {
         ],
     );
 
-    contribution_account.contributor = ctx.accounts.contributor.key();
-    contribution_account.campaign = campaign_account.key();
     contribution_account.total_amount_donated += amount;
 
     campaign_account.total_donated += amount;
@@ -39,23 +42,18 @@ pub fn contribute(ctx: Context<Contribute>, amount: u64) -> Result<()> {
     Ok(())
 }
 
-
 #[derive(Accounts)]
-pub struct Contribute<'info> {
+pub struct ReContribute<'info> {
     #[account(mut)]
     pub contributor: Signer<'info>,
 
-    #[account(
-        mut,
-    )]
+    #[account(mut)]
     pub campaign: Account<'info, Campaign>,
 
     #[account(
-        init,
-        payer = contributor,
-        space = 8 + Contribution::INIT_SPACE,
-        seeds = [b"contributor", campaign.key().as_ref(), contributor.key().as_ref()],
-        bump,
+        mut,
+        has_one = campaign,
+        has_one = contributor @ CustomError::UnauthorizedOwner,
     )]
     pub contribution: Account<'info, Contribution>,
 

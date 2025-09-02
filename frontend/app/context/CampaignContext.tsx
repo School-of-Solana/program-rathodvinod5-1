@@ -21,8 +21,6 @@ export type Campaign = {
 
 type CampaignContextType = {
   campaigns: any[] | null;
-  //   setCampaigns: (campaigns: Campaign[]) => void;
-  //   addCampaign: (campaign: Campaign) => void;
   fetchCampaigns: () => {};
   getCampaignById: (id: string) => Campaign | undefined | any;
   fetchDetailsOfCampaingAccount: (campaignId: PublicKey) => {};
@@ -38,7 +36,6 @@ export const CampaignProvider = ({ children }: { children: ReactNode }) => {
   const { program, readOnlyProgram, connection } = useAnchor();
 
   useEffect(() => {
-    // console.log("in useEffect");
     if (!campaigns) {
       fetchCampaigns();
     }
@@ -54,14 +51,6 @@ export const CampaignProvider = ({ children }: { children: ReactNode }) => {
       return [];
     }
   };
-
-  //   const setCampaigns = (newCampaigns: Campaign[]) => {
-  //     setCampaignsState(newCampaigns);
-  //   };
-
-  //   const addCampaign = (campaign: Campaign) => {
-  //     setCampaignsState((prev) => [...prev, campaign]);
-  //   };
 
   const getCampaignById = (id: string) => {
     return campaigns?.find((c) => c.publicKey === id);
