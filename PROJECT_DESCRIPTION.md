@@ -1,6 +1,6 @@
 # Project Description
 
-**Deployed Frontend URL:** [TODO: Link to your deployed frontend]
+**Deployed Frontend URL:** https://solana-crowdfunding-8rptlri5n-vinod-rathods-projects.vercel.app
 
 **Solana Program ID:** Ept1VxEScf1bzfkwfEous1ZCDj16QCirBBq9kXzYAgwG
 
@@ -140,6 +140,25 @@ The application supports:
      - Initializes state with goal, deadline, metadata.
      - Initializes a vault PDA for holding funds.
 
+2. Contribute
+   "contribute(ctx: Context<Contribute>, amount: u64)"
+
+   - Allows any user to transfer SOL to a campaign.
+   - Updates total_donated in CampaignAccount.
+   - If contributor already exists, their contributed_amount is incremented.
+
+3. Withdraw by owner
+   "claim_funds(ctx: Context<ClaimFunds>)"
+
+   - On success, lamports from CampaignAccount are transferred to owner’s wallet.
+   - Program ensures conditions (goal met, deadline not passed, not already withdrawn).
+
+4. Refund (Contributor)
+   "refund(ctx: Context<Refund>)"
+
+   - If goal not met after deadline, contributor requests refund.
+   - Program verifies contribution record and transfers SOL back to contributor.
+
 **Instructions Implemented:**
 
 - Instruction 1: [Description of what it does]
@@ -148,13 +167,26 @@ The application supports:
 
 ### Account Structure
 
-[TODO: Describe your main account structures and their purposes]
-
 ```rust
-// Example account structure (replace with your actual structs)
-#[account]
-pub struct YourAccountName {
-    // Describe each field
+// Campaign account structure
+pub struct Campaign {
+    pub creator: Pubkey, // PublicKey of the campaign creator
+    #[max_len(30)]
+    pub title: String, // Campaign title
+    #[max_len(50)]
+    pub description: String, // Description of the campaing
+    pub goal_amount: u64, // target amount to be raised
+    pub total_donated: u64, // total donations made by contributors
+    pub deadline: i64, // deadline of the campaign in time
+    pub bump: u8, // bump which is calculated
+    pub claimed: bool, // indicated does the amount of the campaing is claimed by the creator
+}
+
+// Contribution account structure
+pub struct Contribution {
+    pub campaign: Pubkey, // pub key of the campaign
+    pub contributor: Pubkey, // pub key of the contributor
+    pub total_amount_donated: u64, // total amount donated by this user
 }
 ```
 
@@ -162,19 +194,8 @@ pub struct YourAccountName {
 
 ### Test Coverage
 
-[TODO: Describe your testing approach and what scenarios you covered]
-
-**Happy Path Tests:**
-
-- Test 1: [Description]
-- Test 2: [Description]
-- ...
-
-**Unhappy Path Tests:**
-
-- Test 1: [Description of error scenario]
-- Test 2: [Description of error scenario]
-- ...
+All the test cases are in a single file. Run "anchor test" to run happy and unhappy case at the same time.
+Note: The path of the test cases is "anchor_project/crowdfunding"
 
 ### Running Tests
 
@@ -185,4 +206,5 @@ anchor test
 
 ### Additional Notes for Evaluators
 
-[TODO: Add any specific notes or context that would help evaluators understand your project better]
+Path for solana anchor program code is "anchor_project/crowdfunding"
+Path for frontend code "frontend"
