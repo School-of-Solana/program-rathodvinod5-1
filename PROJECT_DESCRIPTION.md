@@ -20,19 +20,19 @@ The application supports:
 
 ### Key Features
 
-- Featuer1: Create and Manage Campaigns
+- Featuer 1: Create and Manage Campaigns
   Campaign creators can easily launch new fundraising campaigns directly on the Solana blockchain. Each campaign includes essential metadata such as title, description, funding goal, and deadline.
 
-- Featuer2: Contribute SOL to Campaigns
+- Featuer 2: Contribute SOL to Campaigns
   Users can contribute SOL to any active campaign with instant confirmation, thanks to Solana’s high throughput and low transaction fees. Contributions are recorded securely on-chain.
 
-- Featuer3: Multiple Contributions from the Same Wallet
+- Featuer 3: Multiple Contributions from the Same Wallet
   A single wallet can contribute multiple times to the same campaign, allowing supporters to increase their contributions over time.
 
-- Featuer4: Secure Fund Withdrawal by Campaign Owner
+- Featuer 4: Secure Fund Withdrawal by Campaign Owner
   Once a campaign reaches its funding goal before the deadline, only the campaign creator is authorized to withdraw the funds securely.
 
-- Featuer5: Refunds if Goal is Not Met
+- Featuer 5: Refunds if Goal is Not Met
   If a campaign fails to meet its funding goal by the deadline, contributors are able to withdraw their contributions, ensuring fairness and trust in the fundraising process.
 
 ### How to Use the dApp
@@ -125,7 +125,20 @@ The application supports:
 
 ### Program Instructions
 
-[TODO: List and describe all the instructions in your Solana program]
+1. InitializeCampaign
+   Purpose: Create a new campaign.
+
+   - Accounts:
+
+     - Campaign PDA (new account storing metadata like title, description, goal, deadline, raised_amount, creator).
+     - Vault PDA (where contributions will be held).
+     - Campaign creator (payer).
+     - System Program.
+
+   - Logic:
+     - Derives campaign PDA from seeds.
+     - Initializes state with goal, deadline, metadata.
+     - Initializes a vault PDA for holding funds.
 
 **Instructions Implemented:**
 
