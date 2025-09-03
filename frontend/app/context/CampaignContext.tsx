@@ -21,9 +21,9 @@ export type Campaign = {
 
 type CampaignContextType = {
   campaigns: any[] | null;
-  fetchCampaigns: () => {};
+  fetchCampaigns: () => void;
   getCampaignById: (id: string) => Campaign | undefined | any;
-  fetchDetailsOfCampaingAccount: (campaignId: PublicKey) => {};
+  fetchDetailsOfCampaingAccount: (campaignId: PublicKey) => void;
 };
 
 const CampaignContext = createContext<CampaignContextType | undefined>(
@@ -43,7 +43,7 @@ export const CampaignProvider = ({ children }: { children: ReactNode }) => {
 
   const fetchCampaigns = async () => {
     try {
-      let campaigns = await readOnlyProgram?.account?.campaign?.all();
+      const campaigns = await readOnlyProgram?.account?.campaign?.all();
       setCampaigns(campaigns);
       console.log("Fetched campaigns:", campaigns);
     } catch (err) {

@@ -1,22 +1,19 @@
 "use client";
-import { useRouter, usePathname } from "next/navigation";
-import { useWallet } from "@solana/wallet-adapter-react";
-import { useConnection } from "@solana/wallet-adapter-react";
+import { useRouter } from "next/navigation";
+// import { useWallet } from "@solana/wallet-adapter-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
-import { useEffect } from "react";
 
 const Header = () => {
   const router = useRouter();
 
-  const { publicKey, connected, connect, disconnect } = useWallet();
-
-  const onClickButton = () => {
-    if (publicKey) {
-      disconnect();
-    } else {
-      connect();
-    }
-  };
+  // const { publicKey, connect, disconnect } = useWallet();
+  // const onClickButton = () => {
+  //   if (publicKey) {
+  //     disconnect();
+  //   } else {
+  //     connect();
+  //   }
+  // };
 
   return (
     <header className="flex flex-row justify-between items-center mt-6">

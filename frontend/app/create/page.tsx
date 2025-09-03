@@ -103,14 +103,14 @@ const CreateCampaign = () => {
 
         <div className="flex flex-row justify-end items-center mt-6 gap-4">
           <CustomButton
-            title="Claim Funds"
+            // title="Claim Funds"
             onClick={clearFormData}
             customCss="w-[200px]"
           >
             <p>Clear</p>
           </CustomButton>
           <CustomButton
-            title="Claim Funds"
+            // title="Claim Funds"
             onClick={handleCreateCampaign}
             customCss="w-[220px]"
           >

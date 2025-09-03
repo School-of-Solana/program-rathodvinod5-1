@@ -6,17 +6,17 @@ import {
   useAnchorWallet,
   useWallet,
 } from "@solana/wallet-adapter-react";
-
 import { AnchorProvider, Program, Idl, Wallet } from "@coral-xyz/anchor";
-import { PublicKey } from "@solana/web3.js";
+import { Keypair, PublicKey } from "@solana/web3.js";
 import IDL from "../idl/crowdfunding.json";
+import { Crowdfunding } from "../idl/crowdfunding";
 
 type AnchorContextType = {
   connection: ReturnType<typeof useConnection>["connection"];
   readOnlyProvider: AnchorProvider;
   writeProvider: AnchorProvider | null;
-  program: Program | null;
-  readOnlyProgram: Program;
+  program: Program<Crowdfunding> | null;
+  readOnlyProgram: Program<Crowdfunding>;
 };
 
 const AnchorContext = createContext<AnchorContextType | null>(null);
@@ -24,6 +24,7 @@ const AnchorContext = createContext<AnchorContextType | null>(null);
 // Dummy Wallet (for read-only)
 const dummyWallet: Wallet = {
   publicKey: PublicKey.default,
+  payer: Keypair.generate(),
   signTransaction: async (tx) => tx,
   signAllTransactions: async (txs) => txs,
 };
@@ -44,7 +45,10 @@ export function AnchorProviderContext({
         preflightCommitment: "processed",
       });
 
-      const readOnlyProgram = new Program(IDL as Idl, readOnlyProvider);
+      const readOnlyProgram = new Program<Crowdfunding>(
+        IDL as Idl,
+        readOnlyProvider
+      );
 
       // Write provider (requires wallet)
       if (wallet) {
@@ -52,7 +56,7 @@ export function AnchorProviderContext({
           commitment: "confirmed",
           preflightCommitment: "processed",
         });
-        const program = new Program(IDL as Idl, writeProvider);
+        const program = new Program<Crowdfunding>(IDL as Idl, writeProvider);
 
         return { readOnlyProvider, writeProvider, program, readOnlyProgram };
       }

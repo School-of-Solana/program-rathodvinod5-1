@@ -56,7 +56,7 @@ export default function Home() {
                   {formatTimestamp(campaign.account.deadline.toString())}
                 </p>
                 <CustomButton
-                  title="View Details"
+                  // title="View Details"
                   route={`/details/${campaign.publicKey.toString()}`}
                 >
                   View Details

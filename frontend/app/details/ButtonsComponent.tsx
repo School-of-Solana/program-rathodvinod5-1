@@ -47,7 +47,7 @@ const ButtonsComponent = ({
     <div className="w-full flex flex-row justify-center items-center gap-4">
       {isCampaignActive ? (
         <CustomButton
-          title="Contribute"
+          // title="Contribute"
           onClick={onClickContributeButton}
           customCss="w-[200px]"
         >
@@ -61,7 +61,7 @@ const ButtonsComponent = ({
 
       {Number(previousContributionAmount) > 0 ? (
         <CustomButton
-          title="Contribute"
+          // title="Contribute"
           onClick={onClickClaimRefundButton}
           customCss="w-[200px]"
         >
@@ -75,7 +75,7 @@ const ButtonsComponent = ({
 
       {isCreator && Number(campaignAmount) >= 0 ? (
         <CustomButton
-          title="Claim Funds"
+          // title="Claim Funds"
           onClick={onClickClaimButton}
           customCss="w-[200px]"
         >
@@ -89,7 +89,7 @@ const ButtonsComponent = ({
 
       {canDeleteAccount ? (
         <CustomButton
-          title="Close Account"
+          // title="Close Account"
           onClick={onClickDeleteCampaignAccount}
           customCss="w-[200px]"
         >

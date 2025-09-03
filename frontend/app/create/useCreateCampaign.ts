@@ -73,7 +73,7 @@ const useCreateCampaign = () => {
   const wallet = useWallet(); // ✅ full wallet object (with publicKey + signTransaction)
 
   const params = useParams();
-  let { campaign } = params;
+  const { campaign } = params;
 
   useEffect(() => {
     if (campaign) {

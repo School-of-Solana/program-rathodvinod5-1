@@ -2,13 +2,13 @@
 import { useRouter } from "next/navigation";
 
 const CustomButton = ({
-  title,
+  // title,
   route,
   onClick,
   customCss,
   children,
 }: {
-  title: string;
+  // title: string;
   route?: string;
   onClick?: () => void;
   customCss?: string;
