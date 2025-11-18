@@ -201,10 +201,16 @@ Note: The path of the test cases is "anchor_project/crowdfunding"
 
 ```bash
 # Commands to run your tests
-anchor test
+cd anchor_project/crowdfunding && anchor test
 ```
 
 ### Additional Notes for Evaluators
 
-Path for solana anchor program code is "anchor_project/crowdfunding"
-Path for frontend code "frontend"
+### Please Note:-
+
+1. Path for solana anchor program code is "anchor_project/crowdfunding"
+
+   - And please run anchor related command from "anchor_project/crowdfunding" dir only
+
+2. Path for frontend code "frontend" (NextJS project)
+   - And please run front-end related command from "frontend" dir only
