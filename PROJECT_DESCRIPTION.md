@@ -79,23 +79,23 @@ The application supports:
 
 **PDAs Used:**
 
-1. Campaign Account PDA seeds - `[b"campaign", signer.key().as_ref(), title.as_bytes()]`
+**1. Campaign Account PDA seeds** - `[b"campaign", signer.key().as_ref(), title.as_bytes()]`
 
-   - b"campaign" (a static seed for namespace)
-   - signer (the wallet address of the campaign creator)
-   - title of the campaign
+- b"campaign" (a static seed for namespace)
+- signer (the wallet address of the campaign creator)
+- title of the campaign
 
-   - Reason:
-     These seeds ensure that every campaign has a unique PDA, even if created by the same user multiple times. This avoids overwriting existing campaign accounts and keeps data well organized.
+- Reason:
+  These seeds ensure that every campaign has a unique PDA, even if created by the same user multiple times. This avoids overwriting existing campaign accounts and keeps data well organized.
 
-2. Contribution Account PDA - `[b"contributor", campaign.key().as_ref(), contributor.key().as_ref()]`
+**2. Contribution Account PDA** - `[b"contributor", campaign.key().as_ref(), contributor.key().as_ref()]`
 
-   - b"contribution" (a static seed for namespace)
-   - campaign (the PDA of the campaign being contributed to)
-   - contributor (the wallet address of the contributor)
+- b"contribution" (a static seed for namespace)
+- campaign (the PDA of the campaign being contributed to)
+- contributor (the wallet address of the contributor)
 
-   - Reason:
-     Using both the campaign PDA and the contributor’s wallet address ties the contribution account directly to the campaign and contributor.
+- Reason:
+  Using both the campaign PDA and the contributor’s wallet address ties the contribution account directly to the campaign and contributor.
 
 ### Program Instructions
 
