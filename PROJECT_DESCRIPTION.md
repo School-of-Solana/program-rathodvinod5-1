@@ -20,19 +20,24 @@ The application supports:
 
 ### Key Features
 
-- Featuer 1: Create and Manage Campaigns
+- **Featuer 1: Create and Manage Campaigns**
+
   Campaign creators can easily launch new fundraising campaigns directly on the Solana blockchain. Each campaign includes essential metadata such as title, description, funding goal, and deadline.
 
-- Featuer 2: Contribute SOL to Campaigns
+- **Featuer 2: Contribute SOL to Campaigns**
+
   Users can contribute SOL to any active campaign with instant confirmation, thanks to Solana’s high throughput and low transaction fees. Contributions are recorded securely on-chain.
 
-- Featuer 3: Multiple Contributions from the Same Wallet
+- **Featuer 3: Multiple Contributions from the Same Wallet**
+
   A single wallet can contribute multiple times to the same campaign, allowing supporters to increase their contributions over time.
 
-- Featuer 4: Secure Fund Withdrawal by Campaign Owner
+- **Featuer 4: Secure Fund Withdrawal by Campaign Owner**
+
   Once a campaign reaches its funding goal before the deadline, only the campaign creator is authorized to withdraw the funds securely.
 
-- Featuer 5: Refunds if Goal is Not Met
+- **Featuer 5: Refunds if Goal is Not Met**
+
   If a campaign fails to meet its funding goal by the deadline, contributors are able to withdraw their contributions, ensuring fairness and trust in the fundraising process.
 
 ### How to Use the dApp
