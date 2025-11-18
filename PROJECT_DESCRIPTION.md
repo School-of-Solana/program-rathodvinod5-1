@@ -37,8 +37,6 @@ The application supports:
 
 ### How to Use the dApp
 
-[TODO: Provide step-by-step instructions for users to interact with your dApp]
-
 1. **Connect Wallet**
 2. **Create a Campaign:** Enter details like campaign title, description, funding goal, and deadline, and confirm the transaction to deploy your campaign on-chain
 3. **Browse Active Campaigns:** After creating a campaign, view a list of all ongoing campaigns with their progress, goal, and remaining time on the homepage.
@@ -49,52 +47,25 @@ The application supports:
 
 ## Program Architecture
 
-1. Account Structure
-
-- Account Structures
-
-  - Campaign Account
-
-    - Stores the state of each crowdfunding campaign.
-    - Fields include:
-      - owner: PublicKey of the campaign creator.
-      - title: Campaign title.
-      - description: Campaign details.
-      - goal_amount: The SOL target to be raised.
-      - deadline: Campaign end timestamp.
-      - total_donated: Current SOL collected.
-      - claimed: is campaign money cliamed by creator
-
-  - Contribution Account
-    - used if you want to track each contributor’s state separately.
-    - Fields include:
-      - campaign: The campaign PublicKey.
-      - contributor: Wallet address.
-      - total_amount_donated: Total amount contributed by this wallet to this campaign.
-
-2. Main Instructions
+# Main Instructions
 
 - Initialize Campaign with
-  "initialize_campaign(ctx: Context<InitializeCampaign>, title: String, description: String, goal_amount: u64, deadline: i64)"
 
   - Creates and initializes a new CampaignAccount.
   - Saves metadata: owner, goal, deadline, title, description.
 
 - Contribute
-  "contribute(ctx: Context<Contribute>, amount: u64)"
 
   - Allows any user to transfer SOL to a campaign.
   - Updates total_donated in CampaignAccount.
   - If contributor already exists, their contributed_amount is incremented.
 
 - Withdraw by owner
-  "claim_funds(ctx: Context<ClaimFunds>)"
 
   - On success, lamports from CampaignAccount are transferred to owner’s wallet.
   - Program ensures conditions (goal met, deadline not passed, not already withdrawn).
 
 - Refund (Contributor)
-  "refund(ctx: Context<Refund>)"
 
   - If goal not met after deadline, contributor requests refund.
   - Program verifies contribution record and transfers SOL back to contributor.
@@ -103,8 +74,7 @@ The application supports:
 
 **PDAs Used:**
 
-1. Campaign Account PDA
-   Seeds used: "seeds = [b"campaign", signer.key().as_ref(), title.as_bytes()]"
+1. Campaign Account PDA seeds - `[b"campaign", signer.key().as_ref(), title.as_bytes()]`
 
    - b"campaign" (a static seed for namespace)
    - signer (the wallet address of the campaign creator)
@@ -113,8 +83,7 @@ The application supports:
    - Reason:
      These seeds ensure that every campaign has a unique PDA, even if created by the same user multiple times. This avoids overwriting existing campaign accounts and keeps data well organized.
 
-2. Contribution Account PDA
-   Seeds used: "seeds = [b"contributor", campaign.key().as_ref(), contributor.key().as_ref()]"
+2. Contribution Account PDA - `[b"contributor", campaign.key().as_ref(), contributor.key().as_ref()]`
 
    - b"contribution" (a static seed for namespace)
    - campaign (the PDA of the campaign being contributed to)
@@ -125,45 +94,23 @@ The application supports:
 
 ### Program Instructions
 
-1. InitializeCampaign
-   Purpose: Create a new campaign.
+1. InitializeCampaign: `initialize_campaign(ctx, title, description, goal, deadline)` - to create a new campaign.
 
-   - Accounts:
+2. Contribute: `contribute_amount(amount: u64)` to contribute to the campaign
 
-     - Campaign PDA (new account storing metadata like title, description, goal, deadline, raised_amount, creator).
-     - Vault PDA (where contributions will be held).
-     - Campaign creator (payer).
-     - System Program.
+3. Withdraw by owner: `claim_fund_by_author()`
 
-   - Logic:
-     - Derives campaign PDA from seeds.
-     - Initializes state with goal, deadline, metadata.
-     - Initializes a vault PDA for holding funds.
+4. Refund (Contributor): `refund_to_contributor()`
 
-2. Contribute
-   "contribute(ctx: Context<Contribute>, amount: u64)"
-
-   - Allows any user to transfer SOL to a campaign.
-   - Updates total_donated in CampaignAccount.
-   - If contributor already exists, their contributed_amount is incremented.
-
-3. Withdraw by owner
-   "claim_funds(ctx: Context<ClaimFunds>)"
-
-   - On success, lamports from CampaignAccount are transferred to owner’s wallet.
-   - Program ensures conditions (goal met, deadline not passed, not already withdrawn).
-
-4. Refund (Contributor)
-   "refund(ctx: Context<Refund>)"
-
-   - If goal not met after deadline, contributor requests refund.
-   - Program verifies contribution record and transfers SOL back to contributor.
+5. Re-Contribute: `recontribute_amount(amount: u64)` to re-contribute to the campaign
 
 **Instructions Implemented:**
 
-- Instruction 1: [Description of what it does]
-- Instruction 2: [Description of what it does]
-- ...
+- **InitializeCampaign**: Creates and initializes a new CampaignAccount and saves metadata: owner, goal, deadline, title, description.
+- **Contribute**: Users can transfer SOL to a campaign via contribute_amount() instruction. and the total total_donated sol will be updated in CampaignAccount.
+- **Withdraw by owner**: On successfully raising the target amount, the owner can withdraw lamports from the campaign account only after the deadline. Trying before the deadline will raise an error.
+- **Refund (Contributor)**: If the goal not met after the deadline, the contributors can request for refund, and withdraw the deposited lamports.
+- **Re-Contribute**: A user can contribute to the same campaign multiple times
 
 ### Account Structure
 
@@ -212,5 +159,17 @@ cd anchor_project/crowdfunding && anchor test
 
    - And please run anchor related command from "anchor_project/crowdfunding" dir only
 
+```bash
+# Anchor related command to be run from "anchor_project/crowdfunding dir only
+cd anchor_project/crowdfunding && anchor build
+cd anchor_project/crowdfunding && anchor test
+```
+
 2. Path for frontend code "frontend" (NextJS project)
    - And please run front-end related command from "frontend" dir only
+
+```bash
+# NextJS related command to be run from "frontend dir only
+cd frontend && npm run dev
+cd frontend && npm run start
+```
