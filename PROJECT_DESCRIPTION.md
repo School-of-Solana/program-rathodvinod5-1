@@ -99,15 +99,15 @@ The application supports:
 
 ### Program Instructions
 
-1. InitializeCampaign: `initialize_campaign(ctx, title, description, goal, deadline)` - to create a new campaign.
+1. **InitializeCampaign:** `initialize_campaign(ctx, title, description, goal, deadline)` - to create a new campaign.
 
-2. Contribute: `contribute_amount(amount: u64)` to contribute to the campaign
+2. **Contribute:** `contribute_amount(amount: u64)` to contribute to the campaign
 
-3. Withdraw by owner: `claim_fund_by_author()`
+3. **Withdraw by owner:** `claim_fund_by_author()`
 
-4. Refund (Contributor): `refund_to_contributor()`
+4. **Refund (Contributor):** `refund_to_contributor()`
 
-5. Re-Contribute: `recontribute_amount(amount: u64)` to re-contribute to the campaign
+5. **Re-Contribute:** `recontribute_amount(amount: u64)` to re-contribute to the campaign
 
 **Instructions Implemented:**
 
