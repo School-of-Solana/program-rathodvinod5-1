@@ -162,7 +162,7 @@ cd anchor_project/crowdfunding && anchor test
 
 1. Path for solana anchor program code is "anchor_project/crowdfunding"
 
-   - And please run anchor related command from "anchor_project/crowdfunding" dir only
+   - Run anchor related command from "anchor_project/crowdfunding" dir only
 
 ```bash
 # Anchor related command to be run from "anchor_project/crowdfunding dir only
@@ -171,7 +171,7 @@ cd anchor_project/crowdfunding && anchor test
 ```
 
 2. Path for frontend code "frontend" (NextJS project)
-   - And please run front-end related command from "frontend" dir only
+   - Run front-end related command from "frontend" dir only
 
 ```bash
 # NextJS related command to be run from "frontend dir only
