@@ -1,7 +1,6 @@
 "use client";
 import Alert from "../components/Alert";
 import CustomButton from "../components/Button";
-import { useOverlay } from "../context/ModalContext";
 import { CloseAccountTypeEnum } from "../utilities/Contants";
 
 import useCreateCampaign from "./useCreateCampaign";

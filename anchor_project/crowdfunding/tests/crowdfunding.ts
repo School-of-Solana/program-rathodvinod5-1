@@ -10,6 +10,13 @@ describe("Crowdfunding Program", () => {
   anchor.setProvider(provider);
   const program = anchor.workspace.Crowdfunding as Program<Crowdfunding>; // type: Crowdfunding
 
+  // const provider = new anchor.AnchorProvider(
+  //   new anchor.web3.Connection("http://127.0.0.1:8890"), // match Anchor.toml
+  //   anchor.Wallet.local(),
+  //   { commitment: "confirmed" }
+  // );
+  // anchor.setProvider(provider);
+
   // Test data
   const title = "Clean Water";
   const titleWithGoal0 = "Goal with 0";
