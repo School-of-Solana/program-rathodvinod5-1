@@ -137,16 +137,31 @@ const useCreateCampaign = () => {
     if (!campaignName || typeof campaignName !== "string") {
       newFormInputError.campaignName = "Please enter a valid campaign name.";
       isError = true;
+    } else if (campaignName.length > 50) {
+      newFormInputError.campaignName =
+        "Campaign name should be less than 50 characters.";
+      isError = true;
     }
-    if (!campaignDescription || typeof campaignDescription !== "string") {
+
+    if (
+      !campaignDescription ||
+      typeof campaignDescription !== "string" ||
+      campaignDescription.length > 100
+    ) {
       newFormInputError.campaignDescription =
         "Please enter a valid campaign description.";
       isError = true;
+    } else if (campaignDescription.length > 100) {
+      newFormInputError.campaignDescription =
+        "Campaign description should be less than 100 characters.";
+      isError = true;
     }
+
     if (!goalAmount || isNaN(Number(goalAmount)) || Number(goalAmount) <= 0) {
       newFormInputError.goalAmount = "Please enter a valid goal amount.";
       isError = true;
     }
+
     if (!deadline || new Date(deadline).getTime() <= new Date().getTime()) {
       newFormInputError.deadline = "Please enter a valid deadline.";
       isError = true;

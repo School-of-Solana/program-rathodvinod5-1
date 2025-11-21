@@ -23,6 +23,8 @@ const CreateCampaign = () => {
     closeAlertTypeStatus,
   } = useCreateCampaign();
 
+  console.log("Error: ", formInputError);
+
   return (
     <div className="w-full flex flex-col justify-center items-center">
       {createCampaignStatus ? (
@@ -43,7 +45,11 @@ const CreateCampaign = () => {
             type="text"
             value={campaignName}
             onChange={onChangeCampaignName}
-            className="border border-teal-600 p-2 rounded w-full"
+            className={`border ${
+              formInputError?.campaignName
+                ? "border-[#d74242]"
+                : "border-teal-600"
+            } p-2 rounded w-full`}
             required
           />
           {formInputError?.campaignName && (
@@ -58,7 +64,11 @@ const CreateCampaign = () => {
           <textarea
             value={campaignDescription}
             onChange={onChangeCampaignDescription}
-            className="border border-teal-600 p-2 rounded w-full"
+            className={`border ${
+              formInputError?.campaignDescription
+                ? "border-[#d74242]"
+                : "border-teal-600"
+            } p-2 rounded w-full`}
           />
           {formInputError?.campaignDescription && (
             <p className="text-[#d74242] text-[12px] dark:text-red-500">
@@ -74,7 +84,11 @@ const CreateCampaign = () => {
             placeholder="In Lamports"
             value={goalAmount}
             onChange={onChangeGoalAmount}
-            className="border border-teal-600 p-2 rounded w-full"
+            className={`border ${
+              formInputError?.goalAmount
+                ? "border-[#d74242]"
+                : "border-teal-600"
+            } p-2 rounded w-full`}
             required
           />
           {formInputError?.goalAmount && (
@@ -90,7 +104,9 @@ const CreateCampaign = () => {
             type="datetime-local"
             value={deadline}
             onChange={onChangeDeadline}
-            className="border border-teal-600 p-2 rounded w-full"
+            className={`border ${
+              formInputError?.deadline ? "border-[#d74242]" : "border-teal-600"
+            } p-2 rounded w-full`}
             required
           />
           {formInputError?.deadline && (

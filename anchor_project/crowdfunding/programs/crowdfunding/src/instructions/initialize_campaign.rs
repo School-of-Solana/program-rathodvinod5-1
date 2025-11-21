@@ -20,19 +20,19 @@ use crate::errors::CustomError;
 
      // Enforce length limits
     // require!(
-    //     title.chars().count() <= 30,
+    //     title.chars().count() <= 50,
     //     CustomError::TitleTooLong
     // );
     // require!(
-    //     description.chars().count() <= 50,
+    //     description.chars().count() <= 100,
     //     CustomError::DescriptionTooLong
     // );
 
-    if title.chars().count() > 30 {
+    if title.chars().count() > 50 {
         return err!(CustomError::TitleTooLong); 
     }
 
-    if description.chars().count() > 50 {
+    if description.chars().count() > 100 {
         return err!(CustomError::DescriptionTooLong);
     }
 
